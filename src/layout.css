@@ -2,7 +2,7 @@
     position: absolute;
     width: 40%;
     box-shadow: 0 1px 4px rgba(0,0,0,0.5), 0 5px 25px rgba(0,0,0,0.2);
-    background-color: #ff6363;
+    background-color:  rgba(66, 169, 170, 0.99);
     color: #fff;
     padding: 20px;
     font-size: 20px;
@@ -30,7 +30,7 @@
   font-family: Helvetica, sans-serif;
   font-size: 20px;
   line-height: 1;
-  color: #ff6363;
+  color: rgba(66, 169, 170, 0.99);
   padding: 5px;
 }
 
@@ -54,12 +54,12 @@ img.noborder {
 }
 
 /* colors: http://paletton.com/#uid=73i0u0kjAAl9uSqf1JJn-uIsLrg */
-div.green, i.green, p.green { color:rgba(66, 169, 170, 0.99) }
-div.yellow, i.yellow, p.yellow { color:#ffcb63 }
-div.orange, i.orange, p.orange { color:#ffaa63 }
-div.gray, i.gray, p.gray { color: #797d9a }
-div.red, i.red, p.red { color: #ff6363 }
-div.blue, i.blue, p.blue { color: #5473b9 }
+div.green, i.green { color:rgba(66, 169, 170, 0.99) }
+div.yellow, i.yellow { color:#ffcb63 }
+div.orange, i.orange { color:#ffaa63 }
+div.gray, i.gray { color: #797d9a }
+div.red, i.red { color: #ff6363 }
+div.blue, i.blue { color: #5473b9 }
 
 .sl-block-content.green { background-color:rgba(66, 169, 170, 0.99); color:#ffffff }
 .sl-block-content.yellow { background-color:#ffcb63 }

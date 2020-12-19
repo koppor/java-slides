@@ -4,18 +4,18 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>Programmieren 2 - Kapitel 2 - Objektorientierung</title>
+		<title>Datenbanken - Kapitel 2 - ER-Modelle</title>
 
 		<link rel="stylesheet" href="reveal.js/css/reset.css">
 		<link rel="stylesheet" href="reveal.js/css/reveal.css">
 
         <link rel="stylesheet" href="src/slides.css">
-        <link rel="stylesheet" href="src/style.css">
+        <link rel="stylesheet" href="src/sql.css">
 
 		<link rel="stylesheet" href="src/layout.css">
         <link rel="stylesheet" href="lib/joint.min.css" />
         <link rel="stylesheet" href="src/erd.css" />
-        <link rel="stylesheet" href="poll/poll.css" />
+        <link rel="stylesheet" href="src/poll.css" />
 
 		<!-- Theme used for syntax highlighting of code -->
 		<link rel="stylesheet" href="src/rainbow.css">
@@ -23,6 +23,8 @@
         <!--<script defer src="lib/fontawesome.all.min.js"/>-->
         <link href="lib/fontawesome.all.min.css" rel="stylesheet">
         <style> .reveal i.fa { font-family:FontAwesome; font-style: normal; } </style>
+
+
 
 		<!-- Printing and PDF exports -->
 		<script>
@@ -38,551 +40,1322 @@
             <div id="header"></div>
             <div id="footer"></div>
 			<div class="slides">
-                <section>
-                    <h4 style="text-align:center"><b>Prof. Dr.-Ing. Johannes Schildgen</b><br>
-                    <a href="mailto:johannes.schildgen@h-da.de">johannes.schildgen@oth-regensburg.de</a></h4>
-                    <h1 style="font-size: 240%;">Programmieren 2 (Java)</h1>
-                    <h3>Kapitel 2: Objektorientierung</h3>
-                    <h4 style="text-align:center">2020-04-15</h4>
-                    <img src="img/ccby.png" height="60px" style="position: absolute; left:0px; border:0; bottom:-225px;">
-                    <img src="img/oth.png" height="60px" style="position: absolute; right:0px; border:0; bottom:-225px; box-shadow:none">
-                </section>
-                
+                    <section>
+                        <h4 style="text-align:center"><b>Prof. Dr.-Ing. Johannes Schildgen</b><br>
+                            <a href="mailto:johannes.schildgen@oth-regensburg.de">johannes.schildgen@oth-regensburg.de</a></h4>
+                            <h1>Datenbanken</h1>
+                            <h3>Kapitel 2: ER-Modelle</h3>
+                            <h4 style="text-align:center">2020-10-20</h4>
+                            <img src="img/ccby.png" height="60px" style="position: absolute; left:0px; border:0; bottom:-160px;">
+                            <img src="img/oth.png" height="60px" style="position: absolute; right:0px; border:0; bottom:-160px; box-shadow:none">
+                        </section>
+                        <section>
+                            <h2>Datenmodellierung</h2>
+                            <h4>Konzeptionelles Datenmodell</h4>
+                            <ul>
+                                <li>Unabhängig vom eingesetzten DBMS</li>
+                                <li><b>ER-Diagramme</b>, UML, ...</li>
+                            </ul>
+                            <div>
+									<div class="stretch erd">
+	                [[
+	                 { _e: "Personen", pos: [150, 100],
+	                  attributes: [
+	                   { _a:"PersNr", options:["primary"], pos: [89, 13] },
+	                   { _a:"Name", pos: [245, 13] }
+	                  ]
+	                 },
+	                 { _e: "Termine", pos: [530, 100],
+	                   attributes: [
+	                    { _a:"Datum", pos: [475, 25], options:["primary"] },
+	                    { _a:"Uhrzeit", pos: [634, 25], options:["primary"] },
+	                    { _a:"Raum", pos: [722, 106], options:["primary"] },
+	                    { _a:"Dauer", pos: [650, 189]},
+	                    { _a:"Bezeichnung", pos: [475, 189]}
+	                   ]
+	                 }
+	                ],
+	                [
+	                 { _r: "nehmen teil",
+	                   _e: ["Personen", "Termine"],
+	                   card: ["N", "M"]
+	                 }
+	                ]]
+								</div></div>
+                            </section>
+                            <section>
+                                <h2>DB-Entwurf</h2>
+                                <ol>
+                                    <li class="fragment">Wir stellen uns etwas aus der<br>realen Welt vor</li>
+                                    <li class="fragment">Modellierung einer <em>Miniwelt</em><br>als konzeptionelles Schema</li>
+                                    <li class="fragment">Transformation in ein DB-Schema<br>(Relational, XML, ...)</li>
+                                </ol>
+                                <div style="position: absolute; top: 120px; right:50px; font-size:250px"><i class="fas fa-lightbulb green"></i><div></div>
+                                <aside class="notes">Die Miniwelt ist ein Ausschnitt der realen Welt. Beispiel: Personen haben eine Personalnummer und einen Namen. Dadurch reduzieren wir Personen auf lediglich diese beiden Eigenschaften, die in unserer Miniwelt relevant sind. Das konzeptionelle Schema kann manuell oder semi-automatisch in ein Datenbankschema transformiert werden, z. B. in <code>CREATE TABLE</code>-Befehle oder ein XML-Schema.</aside>
+                            </section>
+                            <section>
+                                <h2>Ziele des DB-Entwurfs</h2>
+                                
+                                <ul>
+                                    <li>Genaue Abbildung</li>
+                                    <li>Aktuell</li>
+                                    <li>Verständlich</li>
+                                    <li>Simpel</li>
+                                    <li>Redundanzfrei</li>
+                                </ul>
+                                <div style="position:absolute; left: 400px; top: 150px; height: 250px; overflow:hidden;">
+                                <div class="erd" style="width: 400px;">
+                                        [[
+                                         { _e: "Personen", pos: [150, 100],
+                                          attributes: [
+                                           { _a:"Vorname", options:["primary"], pos: [89, 13] },
+                                           { _a:"MySpace-URL", pos: [245, 13] },
+                                           { _a:"ZKX-Nr.", pos: [175, 183]}
+                                          ]
+                                         }
+                                        ],
+                                        [
+                                        ]]
+                                </div></div>
+                                <p style="font-size: 75%">Viele Fehler und Probleme fallen bereits in der Modellierungsphase auf. So können sie frühzeitig behandelt werden.</p>
+                                <aside class="notes">Im schlechten Beispiel-Diagramm auf dieser Folie fehlen wichtige Attribute, z. B. der Nachname. Außerdem ist ein Vorname kein sinnvoller Primärschlüssel. Die MySpace-URL ist vermutlich veraltet und was die KNX-Nr. ist, ist unklar. Wird frühzeitig gemäß Kundenanforderungen ein solches konzeptionelles Modell angefertigt, kann Kundenfeedback erfragt und eingearbeitet werden und somit das Modell schrittweise den Anforderungen des Kunden gerecht werden.</aside>
+                            </section>
+                            <section>
+                                <h2>Entity-Relationship-Modell</h2>
+                                <p>Das ERM modelliert Dinge (Entities) und<br>Beziehungen (Relationships) zwischen diesen.</p>
+                                    <div class="trackinfo"><i class="fas fa-headphones"></i> 7</div>
 
-      <section>
-        <h2>Klassen und Objekte</h2>
-        <div class="trackinfo"><i class="fas fa-book"></i> 11</div>
-        <pre><code class="java" data-trim contenteditable data-sample='code/Programmieren2/src/de/othr/personen/Person.java#32-36'></code></pre>  
-        <h4>Klasse</h4>
-        <p class="small" style="margin-top: -5mm;">Vorlage für Objekte, besteht aus <em>Attributen</em> (<em>Member-<br>Variablen</em>) und <em>Methoden</em>.</p>
-        <h4>Objekt</h4>
-        <p class="small" style="margin-top: -5mm;">Instanz einer Klasse. Hat eine <em>Objekt-Identität</em> (Speicher-<br>adresse) und einen <em>Zustand</em> (Werte seiner Attribute).</p>
-        
-        <img style="position: absolute; right:0cm; top:8cm; width:30%" uml="class Person {
-          -name : String
-          -alter : int
-          +Person(name : String)
-          +setName(name : String)
-          +getName() : String
-          +setAlter(alter : int)
-          +getAlter() : int
-          +erhoeheAlter()
-        }        
-        "/>
-        <aside class="notes">Im gezeigten Code-Beispiel gibt es die Klasse <code>Person</code>. Das UML-Diagramm rechts zeigt an, dass diese Klasse die beiden Attribute <code>name</code> und <code>alter</code> sowie fünf Methoden besitzt. Die Variable <code>p</code> speichert ein Personen-Objekt, also eine Instanz der Klasse <code>Person</code>.</aside>
-      </section>
+                                    <div class="stretch erd">
+                                            [[
+                                             { _e: "Entitätstyp 1", pos: [150, 100] },
+                                             { _e: "Entitätstyp 2", pos: [530, 100] }
+                                            ],
+                                            [
+                                             { _r: "Beziehung",
+                                               _e: ["Entitätstyp 1", "Entitätstyp 2"],
+                                               card: ["", ""]
+                                             }
+                                            ]]
+                                                        </div>
+                                    <aside class="notes">Im ER-Diagramm werden Entitätstypen als Rechtecke dargestellt. Ein Entitätstyp ist so etwas wie eine Klasse. Instanzen eines Entitätstypen werden Entities genannt. Das ER-Modell beschreibt also, wie mögliche Entities aussehen können und wie sie in Beziehung zueinander stehen können.</aside>
+                            </section>
+                            <section>
+                                <h2>Entitätstypen und Entities</h2>
+                                <div style="position:absolute; left: 600px; top: 150px; height: 200px; overflow:hidden;">
+                                <div class="erd" style="width: 200px;">
+                                        [[
+                                         { _e: "Personen", pos: [20, 50] }
+                                        ],
+                                        [
+                                        ]]
+                                </div></div>
+                                <h4>Entitätstyp</h4>
+                                <ul>
+                                    <li>Rechteck im ER-Diagramm</li>
+                                    <li>z. B. &quot;Personen&quot;</li>
+                                </ul>
+                                <h4 style="margin-top: 20px">Entität</h4>
+                                <ul>
+                                    <li>Unterscheidbare Objekte der Miniwelt</li>
+                                    <li><em>Ausprägungen</em> von Entitätstypen</li>
+                                    <li>z. B. &quot;Peter mit der Personalnummer 5&quot;</li>
+                                    <li>Entitäten tauchen nicht im ER-Diagramm auf</li>
+                                </ul>
+                                <aside class="notes">ER-Diagramme stellen Metadaten dar. Sie beschreiben, was in einer Datenbank gespeichert werden kann. Sie beinhalten nicht die Daten selbst.</aside>
+                                <div class="poll fragment" style="bottom:-30px">
+                                    <h1>Was ist ein sinnvoller Entitätstyp?</h1>
+                                      <ul>
+                                        <li>Webshop</li>
+                                        <li data-poll="correct">Kunden</li>
+                                        <li>Login</li>
+                                        <li>Titanik</li>
+                                      </ul>
+                                    <h2>https://frage.space</h2>
+                                </div>
+                            </section>
 
-      <section>
-        <h3>Objektorientierung nach Alan Kay</h3>
-        <ol class="small">
-          <li>Alles ist ein Objekt</li>
-          <li class="fragment">Objekte kommunizieren miteinander durch den Austausch von Nachrichten</li>
-          <li class="fragment">Objekte haben ihren eigenen Speicher (speichern Objekte)</li>
-          <li class="fragment">Ein Objekt ist Instanz einer Klasse (Klasse ist auch ein Objekt)</li>
-          <li class="fragment">Eine Klasse definiert das gemeinsame Verhalten ihrer Instanzen</li>
-          <li class="fragment">Man startet ein Programm, indem man einer Klasse die Kontrolle übergibt</li>
-        </ol>
-        
-        <aside class="notes">Der Austausch von Nachrichten ist ein wesentliches Merkmal objektorientierter Programmierung. Im Code-Beispiel auf der vorherigen Folie wurde die Methode <code>p.setAlter(20)</code> aufgerufen. Das heißt, eine Nachricht mit dem Inhalt <code>20</code> wurde an das Objekt geschickt. Andere Methoden liefern ein Ergebnis zurück, es kommt also eine Nachricht zurück.<br>
-        Klassen sind Objekte der Klasse <code>Class</code>. So kann man beispielsweise überprüfen, ob zwei Objekte Instanzen der gleichen Klasse sind oder abfragen, welche Methoden die Klasse bietet.</aside>
-      </section>
+                            <section>
+                                <h2>Attribute</h2>
+                                    <ul>
+                                        <li>Eigenschaften von Entitäten<br>und Entitätstypen</li>
+                                        <li>Haben <em>Werte</em></li>
+                                        <li>Ellipsen im ER-Diagramm</li>
+                                    </ul>
+                                    <p style="font-size: 75%">&quot;Peter hat die Personalnummer 5&quot;</p>
+                                    <p style="font-size: 75%; text-align: right">&quot;Personen haben eine Personalnummer<br>und einen Namen&quot;</p>
+                                    <div style="position:absolute; left: 620px; top: 150px; height: 200px; overflow:hidden;">
+                                    <div class="erd" style="width: 400px;">
+                                            [[
+                                             { _e: "Personen", pos: [130, 100],
+                                              attributes: [
+                                                { _a:"PersNr", options:["primary"], pos: [69, 13] },
+                                                { _a:"Name", pos: [225, 13] }
+                                              ]
+                                             }
+                                            ],
+                                            [
+                                            ]]
+                                    </div></div>
+                                    <aside class="notes">Bei der Erstellung von ER-Diagrammen hilft es immer, sich konkrete Ausprägungen der Entitätstypen vorzustellen, z. B. hier Peter mit der Personalnummer 5, auch wenn Peter nichts im ER-Diagramm zu suchen hat. Wenn man sich jedoch keine Ausprägungen vorstellen kann, hat man meist einen Fehler beim Erstellen des Entitätstyp gemacht. &quot;Personalabteilung&quot; oder &quot;Datenbank&quot; sind zum Beispiel keine sinnvollen instanziierbaren Entitätstypen. Attribute haben einen Datentypen, welcher jedoch im ER-Diagramm in der Regel nicht spezifiziert wird. Auch andere Eigenschaften, z. B. ob ein Attribut Pflicht oder optional ist, tauchen meist im ER-Diagramm nicht auf.</aside>
+                            </section>
+                            <section>
+                                <h2>Primärschlüssel</h2>
+                                <div class="trackinfo"><i class="fas fa-headphones"></i> 8</div>
+                                <ul>
+                                    <li>Entitäten müssen wohlunterscheidbar sein</li>
+                                    <li>1 oder mehr Attribute bilden den Primärschlüssel</li>
+                                    <li>Beschreibt eine Entität eindeutig</li>
+                                    <li>Im ER-Diagramm: Attribut(e) unterstreichen</li>
+                                </ul>
+                                <div style="height: 200px; overflow:hidden;">
+                                        <div class="stretch erd">
+                        [[
+                         { _e: "Personen", pos: [150, 100],
+                          attributes: [
+                           { _a:"PersNr", options:["primary"], pos: [89, 13] },
+                           { _a:"Name", pos: [245, 13] }
+                          ]
+                         },
+                         { _e: "Termine", pos: [530, 100],
+                           attributes: [
+                            { _a:"Datum", pos: [415, 15], options:["primary"] },
+                            { _a:"Uhrzeit", pos: [535, 15], options:["primary"] },
+                            { _a:"Raum", pos: [655, 15], options:["primary"] },
+                            { _a:"Dauer", pos: [765, 40]},
+                            { _a:"Bezeichnung", pos: [765, 110]}
+                           ]
+                         }
+                        ],
+                        [
+                         
+                        ]]
+                                    </div></div>
+                                    <div class="poll fragment" style="left:0px; bottom:-100px">
+                                        <h1>Darf es am gleichen Tag zur gleichen Uhrzeit mehr als ein Termin geben?</h1>
+                                          <ul>
+                                            <li>Ja, sogar im gleichen Raum</li>
+                                            <li>Nein, auf keinen Fall</li>
+                                            <li>Ja, aber nicht im gleichen Raum</li>
+                                            <li>Nein, allein das Datum muss schon eindeutig sein</li>
+                                          </ul>
+                                        <h2>https://frage.space</h2>
+                                    </div>
+                                    <aside class="notes">Der Personen-Entitätstyp hat als Primärschlüsselattribut die Personennummer. Dies kann zum Beispiel eine künstlich erzeugte laufende Nummer sein. Termine haben keine solche ID. Hier haben wir einen <em>zusammengesetzten Primärschlüssel</em> aus Datum, Uhrzeit und Raum. Dies bedeutet, dass es am gleichen Tag zur gleichen Zeit im gleichen Raum nur einen einzigen Termin geben darf. Manchmal gibt es mehrere Möglichkeiten, was der Primärschlüssel sein kann (sogenannte <em>Schlüsselkandidaten</em>). Dann muss man sich für einen entscheiden.</aside>
+                            </section>
+                            <section>
+                                <h2>Unterattribute</h2>
+                                <p>Attribute können aus mehreren Sub-Attributen zusammengesetzt sein.</p>
+                                <div class="stretch erd">
+                                        [[
+                                         { _e: "Personen", pos: [150, 100],
+                                          attributes: [
+                                           { _a:"PersNr", options:["primary"], pos: [89, 13] },
+                                           { _a:"Name", pos: [245, 13] },
+                                           { _a:"Adresse", pos: [409, 105], 
+                                                attributes: [
+                                                { _a: "Straße", pos: [324, 160] },
+                                                { _a: "PLZ", pos: [437, 188] }, 
+                                                { _a: "Ort", pos: [550, 170] }
+                                                ] }
+                                          ]
+                                         }
+                                        ],
+                                        [
+                                         
+                                        ]]
+                                                    </div>
+                                <aside class="notes">Personen haben eine Adresse, die aus Straße, Postleitzahl und Ort besteht. Unterattribute können natürlich auch wieder mit Unterattributen versehen werden, um sie noch weiter hierarchisch zu strukturieren.</aside>
+                            </section>
+                            <section>
+                                    <h2>Mehrwertige Attribute</h2>
+                                    <div style="height:250px; overflow:hidden;">
+                                    <div class="erd">
+                                            [[
+                                             { _e: "Personen", pos: [150, 100],
+                                              attributes: [
+                                               { _a:"PersNr", options:["primary"], pos: [89, 13] },
+                                               { _a:"Name", pos: [245, 13] },
+                                               { _a:"Telefon", pos: [409, 105], options:["multi"] }
+                                              ]
+                                             }
+                                            ],
+                                            [
+                                             
+                                            ]]
+                                    </div></div>
+                                    <div class="fragment" style="height:200px; overflow:hidden;">
+                                    <div class="erd">
+                                            [[
+                                             { _e: "Personen", pos: [150, 100],
+                                              attributes: [
+                                               { _a:"PersNr", options:["primary"], pos: [89, 13] },
+                                               { _a:"Name", pos: [245, 13] },
+                                               { _a:"Telefon", pos: [409, 105], options:["multi"],
+                                                attributes: [ 
+                                                    { _a:"Typ", pos: [527, 62] },
+                                                    { _a:"Nummer", pos: [527, 130] }
+                                                ] }
+                                              ]
+                                             }
+                                            ],
+                                            [
+                                             
+                                            ]]
+                                    </div></div>
+                                    <aside class="notes">Eine Person hat eine Personennummer, einen Namen, aber mehrere (beliebig viele) Telefonnummern. Im unteren Beispiel hat eine Person mehrere Telefonnummern, die wiederrum aus Typ (z. B. &quot;mobil&quot;) und der Telefonnummer bestehen. Es sind beliebige Schachtelungen möglich.</aside>
+                                </section>
+                                <section>
+                                    <h2>Beziehungen</h2>
+                                    <div class="trackinfo"><i class="fas fa-headphones"></i> 9-10, 12</div>
+                                    <ul>
+                                            <li>Beteiligt sind mind. 2 Entity-Typen</li>
+                                            <li>Rauten im ER-Diagramm</li>
+                                            <li>Funktionalitäten: 1:1, 1:N / N:1, N:M</li>
+                                        </ul>
+                                    <br>
+                                    <div id="er_termin_1_n">
+                                    <div class="stretch erd">
+                                            [[
+                                             { _e: "Personen", pos: [150, 100],
+                                              attributes: [
+                                               { _a:"PersNr", options:["primary"], pos: [89, 13] },
+                                               { _a:"Name", pos: [245, 13] }
+                                              ]
+                                             },
+                                             { _e: "Termine", pos: [530, 100],
+                                               attributes: [
+                                                { _a:"Datum", pos: [475, 25], options:["primary"] },
+                                                { _a:"Uhrzeit", pos: [634, 25], options:["primary"] },
+                                                { _a:"Raum", pos: [722, 106], options:["primary"] },
+                                                { _a:"Dauer", pos: [650, 189]},
+                                                { _a:"Bezeichnung", pos: [475, 189]}
+                                               ]
+                                             }
+                                            ],
+                                            [
+                                             { _r: "haben",
+                                               _e: ["Personen", "Termine"],
+                                               card: ["1", "N"]
+                                             }
+                                            ]]
+                                                        </div>
+                                                    </div>
+                                </section>
 
-      <section>
-        <h3>Objektorientierung: Vorteile</h3>
-        <div style="position: absolute; top: 100px; right:0px; font-size:200px"><i class="fas fa-cubes red"></i></div>
-        <h4>Modularisierung</h4>
-        <ul>
-          <li>Modul: Logische Code-Einheit<br>(z. B. eine oder mehrere Klassen)</li>
-          <li>(+) flexibel und leicht erweiterbar</li>
-          <li>(+) wiederverwendbar</li>
-          <li>(+) Teamwork-freundlich</li>
-          <li>(+) jedes Modul individuell testbar</li>
-        </ul>
-        <aside class="notes">Nicht nur weil Menschen ohnehin in Objekten denken, bietet die objektorientierte Programmierung viele Vorteile. Dadurch, dass immer wieder benötigte zusammengehörige Code-Elemente in Klassen gebündelt werden, werden Redundanz und Fehler vermieden. Wird eine Klasse nachträglich durch die Entwicklung neuer Methoden erweitert oder eine Subklasse erstellt, hat dies meist keine großen Auswirkungen auf den existierenden Programmcode, in dem die Klasse verwendet wird.</aside>
-      </section>
+                                <section>
+                                    <h2>1:N-Beziehungen</h2>
+                                    <div data-clone="er_termin_1_n"></div>
+                                    <ul style="position:absolute; top:400px">
+                                        <li>Eine Person hat <b>N</b> Termine (beliebig viele)</li>
+                                        <li>Ein Termin gehört immer zu <b>einer</b> Person</li>
+                                    </ul>
+                                <aside class="notes">Man muss den Satz immer mit &quot;Ein(e)...&quot; beginnen. Je nachdem, ob man den Satz fortfährt mit &quot;... hat 1&quot; oder &quot;... hat N&quot;, kommt dementsprechend eine 1 oder ein N an den gegenüberliegenden Entitätstypen. </aside>
+                                </section>
 
-      <section>
-        <h3>Beispiel: Mensaplan-App für Android</h3>
-        <p class="small">Klassen:</p>
-        <ul class="small">
-          <li class="fragment"><code>MensaActivity</code>: Startseite der App<br><code>onCreate</code>-Methode implementiert, was dargestellt wird</li>
-          <li class="fragment"><code>Meal</code>: Repräsentiert ein Essen<br>Attribute <code>description</code>, <code>price</code>, <code>image</code>, etc.</li>
-          <li class="fragment"><code>MensaDatastore</code>: Kommunikation mit dem Server<br>Methoden: <code>public Meal[] loadMeals()</code>, etc.</li>
-          <li class="fragment">...</li>
-        </ul>
-        <img class="noborder" src="img/1/android.png" alt="Android App" style="width:5cm; position:absolute; right:5mm; top:3cm">
-        <aside class="notes">Die <code>MensaActivity</code>-Klasse wird beim App-Start einmal instanziiert und die darin befindliche <code>onCreate</code>-Methode aufgerufen. In dieser Methode wird ein <code>MensaDataStore</code>-Objekt erzeugt, welches zur Kommunikation mit dem Webserver, auf dem der Mensaplan abgerufen kann, dient. <code>loadMeals</code> liefert einen Array mit <code>Meal</code>-Objekten zurück. In der <code>MensaActivity</code>-Klasse wird ebendiese Methode aufgerufen und in einer Schleife jedes einzelne Essen in der App dargestellt.</aside>
-      </section>
+                                <section>
+                                    <h2>1:N-Beziehungen</h2>
+                                    <ul>
+                                            <li>Eine Person hat <b>N</b> Termine (beliebig viele)
+                                            <ul>
+                                                <li>Peter hat einen Friseurtermin</li>
+                                                <li>Peter hat einen Zahnarzttermin</li>
+                                                <li>Peter hat Fußballtraining</li>
+                                            </ul></li>
+                                            <li>Ein Termin gehört immer zu <b>einer</b> Person
+                                            <ul>
+                                                <li>Der Friseurtermin befindet sich in Peters Kalender</li>
+                                            </ul></li>
+                                    </ul>
+                                    <div class="sl-block" data-block-type="text" data-block-id="803fa986b17666bfdaf408fdd0a466d6" style="height: auto; min-width: 30px; min-height: 30px; width: 97px; left: 713px; top: 182px;">
+                                            <div class="sl-block-content" data-placeholder-tag="p" data-placeholder-text="Text" style="z-index: 10; font-size: 300%;">
+                                                <p>&nbsp;<i class="fas fa-male green"></i></p>
+                                            </div>
+                                        </div>
+                                        <div class="sl-block" data-block-type="text" style="height: auto; min-width: 30px; min-height: 30px; width: 97px; left: 863px; top: 70px;" data-block-id="e35b024be9ee50b02275dc85728c097a">
+                                            <div class="sl-block-content" data-placeholder-tag="p" data-placeholder-text="Text" style="z-index: 11; font-size: 200%;">
+                                                <p>&nbsp;<i class="fas fa-cut red"></i></p>
+                                            </div>
+                                        </div>
+                                        <div class="sl-block" data-block-type="text" style="height: auto; min-width: 30px; min-height: 30px; width: 97px; left: 863px; top: 187px;" data-block-id="f50c4cdd82b7e27adc7f41e9f4ccbf52">
+                                            <div class="sl-block-content" data-placeholder-tag="p" data-placeholder-text="Text" style="z-index: 12; font-size: 200%;">
+                                                <p>&nbsp;<i class="fas fa-tooth red"></i></p>
+                                            </div>
+                                        </div>
+                                        <div class="sl-block" data-block-type="text" style="height: auto; min-width: 30px; min-height: 30px; width: 97px; left: 863px; top: 292px;" data-block-id="a2ac5fc314e3e44962906767e5fc6849">
+                                            <div class="sl-block-content" data-placeholder-tag="p" data-placeholder-text="Text" style="z-index: 13; font-size: 200%;">
+                                                <p>&nbsp;<i class="fas fa-futbol red"></i></p>
+                                            </div>
+                                        </div>
+                                        <div class="sl-block" data-block-type="line" data-block-id="2e05a83f87abdc784d8b2c6f16fdb079" style="width: auto; height: auto; min-width: 1px; min-height: 1px; left: 790px; top: 140px;">
+                                            <div class="sl-block-content" data-line-x1="112" data-line-y1="63" data-line-x2="200" data-line-y2="0" data-line-color="#000000" data-line-start-type="none" data-line-end-type="arrow" style="z-index: 14;" data-line-width="4px"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" preserveAspectRatio="xMidYMid" width="88" height="63" viewBox="112 0 88 63">
+                                                    <line stroke="rgba(0,0,0,0)" stroke-width="15" x1="112" y1="63" x2="195" y2="3"></line>
+                                                    <line stroke="#000000" stroke-width="4" x1="112" y1="63" x2="195" y2="3"></line>
+                                                    <polygon fill="#000000" transform="translate(195,3) rotate(54.401)" points="0,-6 6,6 -6,6"></polygon>
+                                                </svg></div>
+                                        </div>
+                                        <div class="sl-block" data-block-type="line" style="width: auto; height: auto; min-width: 1px; min-height: 1px; left: 797px; top: 242px;" data-block-id="fcb3feee273f3c640e0cdc84e99dda0d">
+                                            <div class="sl-block-content" data-line-x1="112" data-line-y1="63" data-line-x2="193" data-line-y2="63" data-line-color="#000000" data-line-start-type="none" data-line-end-type="arrow" style="z-index: 16;" data-line-width="4px"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" preserveAspectRatio="xMidYMid" width="81" height="1" viewBox="112 63 81 1">
+                                                    <line stroke="rgba(0,0,0,0)" stroke-width="15" x1="112" y1="63" x2="187" y2="63"></line>
+                                                    <line stroke="#000000" stroke-width="4" x1="112" y1="63" x2="187" y2="63"></line>
+                                                    <polygon fill="#000000" transform="translate(187,63) rotate(90)" points="0,-6 6,6 -6,6"></polygon>
+                                                </svg></div>
+                                        </div>
+                                        <div class="sl-block" data-block-type="line" style="width: auto; height: auto; min-width: 1px; min-height: 1px; left: 790px; top: 280px;" data-block-id="72d9ee0f675d1cf28f9dd06628f22c05">
+                                            <div class="sl-block-content" data-line-x1="112" data-line-y1="63" data-line-x2="200" data-line-y2="133" data-line-color="#000000" data-line-start-type="none" data-line-end-type="arrow" style="z-index: 17;" data-line-width="4px"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" preserveAspectRatio="xMidYMid" width="88" height="70" viewBox="112 63 88 70">
+                                                    <line stroke="rgba(0,0,0,0)" stroke-width="15" x1="112" y1="63" x2="195" y2="129"></line>
+                                                    <line stroke="#000000" stroke-width="4" x1="112" y1="63" x2="195" y2="129"></line>
+                                                    <polygon fill="#000000" transform="translate(195,129) rotate(128.501)" points="0,-6 6,6 -6,6"></polygon>
+                                                </svg></div>
+                                        </div>
+                                        <aside class="notes">Der Primärschlüssel von Person ist die PersNr. Wenn wir sagen, dass Peter PersNr 5 hat, kann diese Person beliebig viele Termine haben (0, 1, 2, etc.). Primärschlüssel vom Termin ist (Datum, Uhrzeit, Raum). Da wir die Beziehung &quot;Personen haben Termine&quot; als 1:N definiert haben, darf es für einen bestimmten Termin (z. B. Montag 14:45 Uhr, Raum D14/404) nur eine einzige Person (oder keine!) geben, die diesen Termin hat.</aside>
+                                </section>
+                                <section>
+                                    <h2>N:M-Beziehungen</h2>
+                                    <div id="er_termin_n_m">
+                                            <div class="stretch erd">
+                                                    [[
+                                                     { _e: "Personen", pos: [150, 100],
+                                                      attributes: [
+                                                       { _a:"PersNr", options:["primary"], pos: [89, 13] },
+                                                       { _a:"Name", pos: [245, 13] }
+                                                      ]
+                                                     },
+                                                     { _e: "Termine", pos: [530, 100],
+                                                       attributes: [
+                                                        { _a:"Datum", pos: [475, 25], options:["primary"] },
+                                                        { _a:"Uhrzeit", pos: [634, 25], options:["primary"] },
+                                                        { _a:"Raum", pos: [722, 106], options:["primary"] },
+                                                        { _a:"Dauer", pos: [650, 189]},
+                                                        { _a:"Bezeichnung", pos: [475, 189]}
+                                                       ]
+                                                     }
+                                                    ],
+                                                    [
+                                                     { _r: "nehmen teil",
+                                                       _e: ["Personen", "Termine"],
+                                                       card: ["N", "M"]
+                                                     }
+                                                    ]]
+                                                                </div>
+                                                            </div>
+                                        <ul style="position:absolute; top:400px">
+                                                <li>Eine Person nimmt an beliebig vielen Terminen teil</li>
+                                                <li>An einem Termin können beliebig viele Person teilnehmen</li>
+                                            </ul>
+                                        <aside class="notes">Auch hier lesen wir wieder &quot;Eine Person...&quot; und &quot;An einem Termin...&quot;. Da in beiden Sätze im zweiten Teil &quot;beliebig viele&quot; steht, schreiben wir an die Linien ein N und ein M. Man schreibt nicht N:N, sondern N:M, da es sich in der Regel um unterschiedliche Zahlen handelt. Nur weil Peter 5 Termine hat, heißt das nicht, dass an jedem seiner Termine 5 Personen teilnehmen.</aside>
+                                </section>
+                                <section>
+                                    <h2>N:M-Beziehungen</h2>
+                                    <ul>
+                                            <li>Eine Person hat beliebig viele Termine
+                                            <ul>
+                                                <li>Peter hat einen Friseurtermin</li>
+                                                <li>Peter hat Fußballtraining</li>
+                                            </ul></li>
+                                            <li>An einem Termin können beliebig <br>viele Person teilnehmen
+                                            <ul>
+                                                <li>Am Friseurtermin nimmt Peter teil</li>
+                                                <li>Am Fußballtraining nimmt Peter teil</li>
+                                                <li>Am Fußballtraining nimmt Katja teil</li>
+                                            </ul></li>
+                                    </ul>
+                                    <div class="sl-block" data-block-type="text" style="height: auto; width: 97px; left: 713px; top: 182px;" data-block-id="ffc2135b40662ffd9ac5ec31631693be">
+                                            <div class="sl-block-content" data-placeholder-tag="p" data-placeholder-text="Text" style="z-index: 10; font-size: 300%;">
+                                                <p>&nbsp;<i class="fas fa-male green"></i></p>
+                                            </div>
+                                        </div>
+                                        <div class="sl-block" data-block-type="text" style="height: auto; width: 97px; left: 863px; top: 187px;" data-block-id="db0a43a94d086af2eebc638a16c16afb">
+                                            <div class="sl-block-content" data-placeholder-tag="p" data-placeholder-text="Text" style="z-index: 11; font-size: 200%;">
+                                                <p>&nbsp;<i class="fas fa-cut red"></i></p>
+                                            </div>
+                                        </div>
+                                        <div class="sl-block" data-block-type="text" style="height: auto; width: 97px; left: 863px; top: 292px;" data-block-id="d60b0f34f45e804bc998065574c2b280">
+                                            <div class="sl-block-content" data-placeholder-tag="p" data-placeholder-text="Text" style="z-index: 12; font-size: 200%;">
+                                                <p>&nbsp;<i class="fas fa-futbol red"></i></p>
+                                            </div>
+                                        </div>
+                                        <div class="sl-block" data-block-type="line" style="width: auto; height: auto; left: 797px; top: 242px;" data-block-id="1130463e9fad268df3ba531b721123ef">
+                                            <div class="sl-block-content" data-line-x1="112" data-line-y1="63" data-line-x2="193" data-line-y2="63" data-line-color="#000000" data-line-start-type="none" data-line-end-type="arrow" style="z-index: 13;" data-line-width="4px"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" preserveAspectRatio="xMidYMid" width="81" height="1" viewBox="112 63 81 1">
+                                                    <line stroke="rgba(0,0,0,0)" stroke-width="15" x1="112" y1="63" x2="187" y2="63"></line>
+                                                    <line stroke="#000000" stroke-width="4" x1="112" y1="63" x2="187" y2="63"></line>
+                                                    <polygon fill="#000000" transform="translate(187,63) rotate(90)" points="0,-6 6,6 -6,6"></polygon>
+                                                </svg></div>
+                                        </div>
+                                        <div class="sl-block" data-block-type="line" style="width: auto; height: auto; left: 790px; top: 280px;" data-block-id="5aa3b1e9a0d197bb6665b87eb49384ee">
+                                            <div class="sl-block-content" data-line-x1="112" data-line-y1="63" data-line-x2="200" data-line-y2="133" data-line-color="#000000" data-line-start-type="none" data-line-end-type="arrow" style="z-index: 14;" data-line-width="4px"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" preserveAspectRatio="xMidYMid" width="88" height="70" viewBox="112 63 88 70">
+                                                    <line stroke="rgba(0,0,0,0)" stroke-width="15" x1="112" y1="63" x2="195" y2="129"></line>
+                                                    <line stroke="#000000" stroke-width="4" x1="112" y1="63" x2="195" y2="129"></line>
+                                                    <polygon fill="#000000" transform="translate(195,129) rotate(128.501)" points="0,-6 6,6 -6,6"></polygon>
+                                                </svg></div>
+                                        </div>
+                                        <div class="sl-block" data-block-type="text" style="height: auto; width: 97px; left: 713px; top: 362px;" data-block-id="b0ecebb5faed2f39e4553f1d6732c349">
+                                            <div class="sl-block-content" data-placeholder-tag="p" data-placeholder-text="Text" style="z-index: 16; font-size: 300%;">
+                                                <p>&nbsp;<i class="fas fa-female green"></i></p>
+                                            </div>
+                                        </div>
+                                        <div class="sl-block" data-block-type="line" style="width: auto; height: auto; left: 790px; top: 362px;" data-block-id="bb0d11142774b64c5756f988f8d6c766">
+                                            <div class="sl-block-content" data-line-x1="112" data-line-y1="63" data-line-x2="200" data-line-y2="4" data-line-color="#000000" data-line-start-type="none" data-line-end-type="arrow" style="z-index: 17;" data-line-width="4px"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" preserveAspectRatio="xMidYMid" width="88" height="59" viewBox="112 4 88 59">
+                                                    <line stroke="rgba(0,0,0,0)" stroke-width="15" x1="112" y1="63" x2="195" y2="7"></line>
+                                                    <line stroke="#000000" stroke-width="4" x1="112" y1="63" x2="195" y2="7"></line>
+                                                    <polygon fill="#000000" transform="translate(195,7) rotate(56.16)" points="0,-6 6,6 -6,6"></polygon>
+                                                </svg></div>
+                                        </div>
+                                </section>
 
-      <section>
-        <h3>Member-Variablen</h3>
-        <p class="small"><code>&lt;Sichtbarkeit&gt; &lt;Datentyp&gt; &lt;Attributsname&gt;;</code></p>
-        <pre style="margin-left:0px; width:12cm" ><code class="java" data-sample-indent="keep" contenteditable data-sample='code/Programmieren2/src/de/othr/personen/Person.java#1-5,50'></code></pre>  
-        <img style="position: absolute; right:0cm; top:3cm; width:30%; z-index: -5;" uml="
-        package de.othr.personen {
-          class Person {
-          -name : String
-          -alter : int
-        }        
-        "/>
-        <h4>Sichtbarkeiten</h4>
-        <ul class="small">
-          <li><code>public</code>: Sichtbar von überall</li>
-          <li><code>private</code>: Nur in der Klasse selbst sichtbar (Empfehlung!)</li>
-          <li><code>protected</code>: In Subklassen und in Klassen im gleichen Paket sichtbar</li>
-          <li>package-private (nichts hinschreiben): In Klassen im gleichen Paket sichtbar</li>
-        </ul>
-        <aside class="notes">Member-Variablen werden auf Klassenebene definiert. Sie speichern den Zustand eines Objekts der jeweiligen Klasse. Über die Sichtbarkeiten wird festgelegt, von wo aus direkt auf die Attribute zugegriffen werden kann.</aside>
-      
-        <div class="poll fragment" style="bottom:-100px">
-          <h1>Welche Klassen haben Zugriff auf die Member-Variable &quot;alter&quot;?</h1>
-            <ul>
-              <li data-poll="correct">de.othr.personen.Person</li>
-              <li>de.othr.personen.*</li>
-              <li>Subklassen von de.othr.personen.Person</li>
-              <li>Alle Klassen</li>
-            </ul>
-          <h2>https://frage.space</h2>
-         </div>
-      
-      </section>
+                                <section>
+                                    <h2>1:1-Beziehung</h2>
+                                    <div class="trackinfo"><i class="fas fa-headphones"></i> 11</div>
+                                    
+                                    <div style="height: 300px; overflow:hidden">
+                                    <div class="stretch erd">
+                                            [[
+                                             { _e: "Personen", pos: [150, 100],
+                                              attributes: [
+                                               { _a:"PersNr", options:["primary"], pos: [89, 13] },
+                                               { _a:"Name", pos: [245, 13] }
+                                              ]
+                                             },
+                                             { _e: "Kreditkarten", pos: [530, 100],
+                                               attributes: [
+                                                { _a:"Kreditkartennr", pos: [475, 25], options:["primary"] },
+                                                { _a:"Ablaufdatum", pos: [595, 25] },
+                                                { _a:"Typ", pos: [702, 63] },
+                                                { _a:"Sicherheitscode", pos: [702, 135]}
+                                               ]
+                                             }
+                                            ],
+                                            [
+                                             { _r: "haben",
+                                               _e: ["Personen", "Kreditkarten"],
+                                               card: ["1", "1"]
+                                             }
+                                            ]]
+                                                        </div></div>
+                                    <ul style="position:absolute; top:340px">
+                                            <li>Eine Person hat <b>1</b> Kreditkarte</li>
+                                            <li>Eine Kreditkarte gehört immer nur zu <b>einer</b> Person</li>
+                                        </ul>
 
-      <!--<section>
-        <h2>Poll Plugin</h2>
-        <ol>
-          <li>Put the <code>poll</code> folder in your reveal.js slides<br>and on a PHP-enabled web server</li>
-          <li>Include the CSS in your slides:<br>
-          <pre><code class="html"><link rel="stylesheet" href="poll/poll.css" /></code></pre></li>
-          <li>Initialize reveal.js with the following dependency:<br>
-            <pre><code class="javascript">{ src: 'poll/poll.js', async: true }</code></pre></li>
-          <li>Add polls to your slides:<br>
-            <pre><code class="html" contenteditable><div class="poll fragment">
-<h1>Question?</h1><ul><li>Wrong answer</li>
-<li data-poll="correct">Correct answer</li></ul>
-<h2>https://url-to-server</h2></div></code></pre></li>
-        </ol>
-        <div class="poll fragment" style="bottom:50px">
-            <h1>Question?</h1><ul><li>Wrong answer</li>
-            <li data-poll="correct">Correct answer</li></ul>
-<h2>https://url-to-server</h2></div>
-      </section>-->
+                                        <div class="fragment" style="margin-top: 5mm">
+                                        <div class="stretch erd">
+                                                [[
+                                                 { _e: "Personen", pos: [400, 100],
+                                                  attributes: [
+                                                   { _a:"PersNr", options:["primary"], pos: [235, 78] },
+                                                   { _a:"Name", pos: [310, 20] },
+                                                   { _a:"Kreditkartennr", pos: [430, 6] },
+                                                   { _a:"Ablaufdatum", pos: [550, 6] },
+                                                   { _a:"Typ", pos: [626, 48] },
+                                                   { _a:"Sicherheitscode", pos: [637, 109]}
+                                                  ]
+                                                 }
+                                                ],
+                                                []]
+                                                            </div></div>
+                                    <aside class="notes">Statt einer 1:1-Beziehung kann man sich auch oft die Beziehung sparen und alles in einem Entitätstypen modellieren.</aside>
+                                </section>
 
-      <section>
-        <h3>Getter / Setter</h3>
-        <pre><code class="java">p.name = "Peter";
-System.out.println(p.name);</code></pre>
-        <p class="small">... funktioniert nur innerhalb der Klasse <code>de.othr.personen.Person</code></p>
+                                <section>
+                                    <h2>Rekursive Beziehung</h2>
+                                    <ul>
+                                        <li>&quot;Beziehung mit sich selbst&quot;</li>
+                                        <li>Entitätstyp nimmt mehrfach an einer Beziehung teil</li>
+                                        <li>Rollennamen zur Unterscheidung notwendig</li>
+                                    </ul>
+                                    <img src="img/2/er_rekursiv.jpg" style="border:0; box-shadow:none; width:300px">
+                                    <aside class="notes">Hier wurden die Rollennamen &quot;Mitarbeiter&quot; und &quot;Chef&quot; an die Linien geschrieben. Eine Person hat nur einen Chef, aber sie kann mehrere Mitarbeiter unter sich haben, d.h. sie kann Chef von mehreren Personen sein.</aside>
+                                </section>
 
-        <pre style="margin-left:47px; width:15cm" ><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personen/Person.java#11-17'></code></pre> 
+                                <section>
+                                    <h2>Beziehungsattribute</h2>
+                                    <div class="trackinfo"><i class="fas fa-headphones"></i> 11</div>
+                                    <div id="er_termin_n_m_attr">
+                                        <div class="stretch erd">
+                                                [[
+                                                 { _e: "Personen", pos: [150, 100],
+                                                  attributes: [
+                                                   { _a:"PersNr", options:["primary"], pos: [89, 13] },
+                                                   { _a:"Name", pos: [245, 13] }
+                                                  ]
+                                                 },
+                                                 { _e: "Termine", pos: [530, 100],
+                                                   attributes: [
+                                                    { _a:"Datum", pos: [475, 25], options:["primary"] },
+                                                    { _a:"Uhrzeit", pos: [634, 25], options:["primary"] },
+                                                    { _a:"Raum", pos: [722, 106], options:["primary"] },
+                                                    { _a:"Dauer", pos: [650, 189]},
+                                                    { _a:"Bezeichnung", pos: [475, 189]}
+                                                   ]
+                                                 }
+                                                ],
+                                                [
+                                                 { _r: "nehmen teil",
+                                                   _e: ["Personen", "Termine"],
+                                                   card: ["N", "M"],
+                                                   attributes: [ {_a:"ist Organisator", pos: [317, 194] } ]
+                                                 }
+                                                ]]
+                                                            </div>
+                                                        </div>
+                                                <ul style="position: absolute; top:420px">
+                                                    <li>Peter nimmt am Fußballtraining teil<br>und ist Organisator</li>
+                                                    <li>Katja nimmt am Fußballtraining teil<br>und ist kein Organisator</li>
+                                                </ul>
+                                </section>
+                                <section>
+                                    <h2>Webshop-Beispiel</h2>
+                                    <div class="trackinfo"><i class="fas fa-headphones"></i> 11</div>
+                                    <div id="er_webshop">
+                                        <div class="stretch erd">
+                                                [[
+                                                 { _e: "Kunden", pos: [150, 100],
+                                                  attributes: [
+                                                   { _a:"Kundennr", options:["primary"], pos: [40, 15] }, 
+                                                   { _a:"Name", pos: [159, 9] },
+                                                   { _a:"E-Mail", pos: [280, 25] }
+                                                  ]
+                                                 },
+                                                 { _e: "Produkte", pos: [630, 100],
+                                                   attributes: [
+                                                    { _a:"Produktnr", pos: [575, 25], options:["primary"] },
+                                                    { _a:"Bezeichnung", pos: [734, 25] },
+                                                    { _a:"Preis", pos: [822, 106] }
+                                                   ]
+                                                 },
+                                                 { _e: "Hersteller", pos: [577, 304],
+                                                   attributes: [
+                                                    { _a:"Firma", pos: [750, 280], options:["primary"] },
+                                                    { _a:"Land", pos: [750, 345] }
+                                                   ]
+                                                 }
+                                                ],
+                                                [
+                                                 { _r: "sind von", pos: [612, 191],
+                                                   _e: ["Produkte", "Hersteller"],
+                                                   card: ["N", "1"]                                                 },
+                                                 { _r: "bewerten",
+                                                   _e: ["Kunden", "Produkte"],
+                                                   card: ["N", "M"],
+                                                   attributes: [ {_a:"Sterne", pos: [317, 194] }, {_a:"Text", pos: [430, 194] } ]
+                                                 }
+                                                ]]
+                                                            </div>
+                                                        </div>
+                                                <aside class="notes">Kunden bewerten Produkte mit Sternen und einem Bewertungstext. Die Beziehungsattribute Sterne und Text werden direkt an die Beziehung geschrieben. Nicht Kunden haben Sterne, auch Produkte haben keine Sterne, sondern die Bewertung: Peter bewertet die Spülmaschinentabs mit einem Stern und schreibt: 'Mein Geschirr wird nicht sauber.'</aside>
+                                </section>
 
-        <pre style="margin-left:47px; width:15cm" ><code class="java">p.setName("Peter");
-System.out.println(p.getName());</code></pre>
-        <p class="small">... funktioniert überall!</p>
-        <img style="position: absolute; right:0cm; top:6cm; width:30%" uml="class Person {
-          -name : String
-          -alter : int
-          +Person(name : String)
-          +setName(name : String)
-          +getName() : String
-          +setAlter(alter : int)
-          +getAlter() : int
-          +erhoeheAlter()
-        }        
-        "/>
-        <aside class="notes">Es wird empfohlen, Member-Variablen auf <code>private</code> zu stellen und Getter und Setter zu implementieren (IntelliJ kann den Code dafür automatisch erzeugen). Der Zugriff auf Attribute erfolgt somit also ausschließlich über Getter und Setter. Nur so lässt sich beispielsweise ein Attribut spezifizieren, auf das nur lesend zugegriffen werden kann, oder welches nur bestimmte Werte zulässt.</aside>
-      </section>
+                                <section>
+                                    <h3>N:M-Bez. vs. eigener Entitätstyp </h3>
+                                    
+                                    <div style="height:200px; overflow:hidden" id="er_rates">    
+                                                    <div class="stretch erd">
+                                                        [[
+                                                        { _e: "Kunden", pos: [50, 10],
+                                                         attributes: [
+                                                         { _a:"Kundennr", options:["primary"], pos: [10, 85] }, 
+                                                         { _a:"...", pos: [140, 85] }
+                                                         ]
+                                                        },
+                                                        { _e: "Produkte", pos: [730, 10],
+                                                          attributes: [
+                                                          { _a:"Produktnr", options:["primary"], pos: [690, 85] }, 
+                                                          { _a:"...", pos: [810, 85] }
+                                                          ]
+                                                        }
+                                                       ],
+                                                       [
+                                                        { _r: "bewerten",
+                                                          _e: ["Kunden", "Produkte"],
+                                                          card: ["N", "M"],
+                                                          attributes: [ {_a:"Sterne", pos: [340, 100] }, {_a:"Text", pos: [480, 100] } ]
+                                                        }
+                                                       ]]
+                                                    </div></div>
+                                                    <div id="er_ratings">    
+                                                        <div class="stretch erd">
+                                                            [[
+                                                            { _e: "Kunden", pos: [50, 10],
+                                                             attributes: [
+                                                             { _a:"Kundennr", options:["primary"], pos: [10, 85] }, 
+                                                             { _a:"...", pos: [140, 85] }
+                                                             ]
+                                                            },
+                                                            { _e: "Produkte", pos: [730, 10],
+                                                              attributes: [
+                                                              { _a:"Produktnr", options:["primary"], pos: [690, 85] }, 
+                                                              { _a:"...", pos: [810, 85] }
+                                                              ]
+                                                            },
+                                                            { _e: "Bewertungen", pos: [390, 10],
+                                                            attributes: [ 
+                                                                {_a:"Bewertungsnr", pos: [300, 100], options:["primary"]},
+                                                                {_a:"Sterne", pos: [430, 100] }, 
+                                                                {_a:"Text", pos: [560, 100] } ]
+                                                            }
+                                                           ],
+                                                           [
+                                                            { _r: "schreiben",
+                                                              _e: ["Kunden", "Bewertungen"],
+                                                              card: ["1", "N"]
+                                                            },
+                                                            { _r: "für",
+                                                              _e: ["Bewertungen", "Produkte"],
+                                                              card: ["N", "1"]
+                                                            }
+                                                           ]]
+                                                        </div></div>
+                                                        <aside class="notes">Die beiden hier dargestellten Lösungen ist fast äquivalent. Da Entitätstypen stets einen Primärschlüssel benötigen, muss es im unteren Beispiel, in dem Bewertungen als Entitätstyp modelliert wird, eine Bewertungsnummer oder ähnliches geben. Mit schwachen Entitätstypen (siehe nächste Folie) lässt sich dies jedoch auch ohne Primärschlüssel lösen (siehe übernächste Folie).</aside>
+                                </section>
 
-      <section>
-        <h2>Datenkapselung</h2>
-        <div style="position: absolute; top: 100px; right:0px; font-size:120px"><i class="fas fa-eye-slash red"></i></div>
-        <h4>Information Hiding</h4>
-        <p>Verstecken von Daten und internen Details vor dem Zugriff von außen.</p>
-        <p class="fragment small" data-fragment-index="1">Vorteile:</p>
-        <ul class="fragment small" data-fragment-index="1">
-          <li>Nur das &quot;Was&quot; und nicht das &quot;Wie&quot; sind nach außen sichtbar</li>
-          <li>Implementierung (das &quot;Wie&quot;) kann ohne große Auswirkungen einfach geändert werden</li>
-          <li>Modularisierung; dadurch besser testbar und anpassbar</li>
-        </ul>
-      </section>
+                                <section>
+                                    <h2>Schwache Entitätstypen</h2>
+                                    <div class="trackinfo"><i class="fas fa-headphones"></i> 13</div>
+                                    <ul class="small">
+                                        <li>Kein eigener Primärschlüssel, stattdessen wird der Primärschlüssel von einer anderen Entität vererbt und <span style="border-bottom: 2px dashed #000;">erweitert</span></li>
+                                        <li>&Rightarrow; Existenzabhängig von einem anderen Entitätstypen</li>
+                                        <li>Entitätstyp und Beziehung doppelt umrahmen</li>
+                                    </ul>
+                                    <div class="stretch erd" style="margin-left: 6cm; margin-top:5mm; max-height: 4cm;">
+                                            [[
+                                                { _e: "Anbieter", pos: [20, 80],
+                                                attributes: [
+                                                { _a:"Anbieternr.", options:["primary"], pos: [5, 5] },
+                                                { _a:"Anbietername", pos: [120, 5] }
+                                                ]
+                                                },
+                                                { _e: "Handytarif", pos: [350, 80], options: ["weak"],
+                                                attributes: [
+                                                { _a:"Tarifbezeichn.", options:["extending_primary"], pos: [300, 5] },
+                                                { _a:"Datenvolumen", pos: [417, 5]},
+                                                { _a:"Preis", pos: [520, 40]}
+                                                ]
+                                                }
+                                            ],
+                                            [
+                                            { _r: "hat",
+                                                _e: ["Anbieter", "Handytarif"], options: ["weak"],
+                                                card: ["1", "N"]
+                                                }
+                                            ]]
+                                    </div>
+                                    <p class="small">Die Kombination aus Anbieternummer und Tarifbezeichnung identifiziert einen Handytarif eindeutig, z. B. Vugafon &quot;Data Extreme&quot;.</p>
+                                    <aside class="notes">Handytarif ist ein schwacher Entitätstyp (<em>Weak Entity Type</em>). Die Tarife sind existenzabhängig vom jeweiligen Anbieter des Tarifs. Dies ist daran zu erkennen, dass sowohl Entitätstyp als auch die Beziehung zum Anbieter doppelt umrahmt sind. Zu einem Tarif muss es einen Anbieter geben. Die Tarifbezeichnung ist ein <em>erweiternder Primärschlüssel</em>. Sie ist eindeutig für einen bestimmten Anbieter. Es kann einen &quot;Data Extreme&quot;-Tarif bei mehreren Anbietern geben, aber bei jedem nur einmal.</aside>
+                                </section>
 
-      <section>
-        <h3><code>this</code></h3>
-        <p class="small">Jede Klasse besitzt automatisch das Attribut <code>this</code>, welches auf das Objekt selbst verweist, um das es gerade geht.</p>
-        <pre><code class="java" contenteditable>public String getName() {
-    return name; // oder: return this.name;
-}
+                                <section>
+                                    <h3>N:M-Bez. vs. schwacher Entitätstyp</h3>
+                                    <div data-clone="er_rates" style="height:200px; overflow:hidden"></div>
+                                    <div id="er_ratings">    
+                                        <div class="stretch erd">
+                                            [[
+                                            { _e: "Kunden", pos: [50, 10],
+                                             attributes: [
+                                                { _a:"Kundennr", options:["primary"], pos: [10, 85] }, 
+                                                   { _a:"...", pos: [140, 85] }
+                                             ]
+                                            },
+                                            { _e: "Produkte", pos: [730, 10],
+                                              attributes: [
+                                                { _a:"Produktnr", options:["primary"], pos: [690, 85] }, 
+                                                   { _a:"...", pos: [810, 85] }
+                                              ]
+                                            },
+                                            { _e: "Bewertungen", pos: [390, 10], options: ["weak"],
+                                            attributes: [ 
+                                                {_a:"Sterne", pos: [340, 100] }, 
+                                                {_a:"Text", pos: [480, 100] } ]
+                                            }
+                                           ],
+                                           [
+                                            { _r: "schreiben",
+                                              _e: ["Kunden", "Bewertungen"], options: ["weak"],
+                                              card: ["1", "N"]
+                                            },
+                                            { _r: "für",
+                                              _e: ["Bewertungen", "Produkte"], options: ["weak"],
+                                              card: ["N", "1"]
+                                            }
+                                           ]]
+                                        </div></div>
+                                        <aside class="notes">Der unten dargestellte schwache Entitätstyp &quot;Bewertungen&quot; hat keine Primärschlüssel-erweiternden Attribute, aber sie ist existenzabhängig vom bewertenden Kunden und dem bewerteten Produkt. Eine Bewertung wird also eindeutig identifiziert durch die entsprechende Kundennummer- und Produktnummer-Kombination. Die beiden auf dieser Folie dargestellten ER-Diagramme sind in ihrer aktuellen Version absolut äquivalent und modellieren genau das gleiche. Die untere Version bietet jedoch mehr Erweiterungsmöglichkeiten (siehe nächste Folie).</aside>
+                                </section>
 
-public void setName(String name) {
-    this.name = name;
-}</code></pre>
-      <aside class="notes">Wie man am Beispiel <code>return name;</code> sehen kann, kann auf Klassenattribute auch direkt zugriffen werden, ohne <code>this.</code> davorzuschreiben. Gibt es jedoch bereits eine Variable, die den gleichen Namen hat wie die Member-Variable, ist das Objekt <code>this</code> nötig, da ansonsten die Variable gemeint ist. Im gezeigten Beispiel ist dies im Setter bei <code>name</code> der Fall. Mit <code>name</code> ist der Methodenparameter gemeint, mit <code>this.name</code> das Attribut der Klasse.</aside>   
-    </section>
+                                <section>
+                                    <h3>N:M-Bez. vs. schwacher Entitätstyp</h3>
+                                    <div id="er_ratings_likes">    
+                                        <div class="stretch erd">
+                                            [[
+                                            { _e: "Kunden", pos: [50, 10],
+                                             attributes: [
+                                                { _a:"Kundennr", options:["primary"], pos: [10, 85] }, 
+                                                   { _a:"...", pos: [140, 85] }
+                                             ]
+                                            },
+                                            { _e: "Produkte", pos: [730, 10],
+                                              attributes: [
+                                                { _a:"Produktnr", options:["primary"], pos: [690, 85] }, 
+                                                   { _a:"...", pos: [810, 85] }
+                                              ]
+                                            },
+                                            { _e: "Bewertungen", pos: [390, 10], options: ["weak"],
+                                            attributes: [ 
+                                                {_a:"Sterne", pos: [340, 100] }, 
+                                                {_a:"Text", pos: [480, 100] } ]
+                                            }
+                                           ],
+                                           [
+                                            { _r: "schreiben",
+                                              _e: ["Kunden", "Bewertungen"], options: ["weak"],
+                                              card: ["1", "N"]
+                                            },
+                                            { _r: "für",
+                                              _e: ["Bewertungen", "Produkte"], options: ["weak"],
+                                              card: ["N", "1"]
+                                            },
+                                            { _r: "gefallen", pos: [80, 161], 
+                                              _e: ["Kunden", "Bewertungen"], 
+                                              card: ["N", "M"]
+                                            }
+                                           ]]
+                                        </div></div>
+                                        <aside class="notes">Dadurch, dass die Bewertungen nun ein Entitätstyp sind, kann dieser nun an Beziehungen teilnehmen und Subtypen (siehe später in diesem Kapitel) haben. Kunden können bei einer Bewertung auf &quot;gefällt mir&quot; klicken. Die &quot;gefallen&quot;-Beziehung ist naturlich nicht doppelt umrahmt. Nicht die Kunden, denen eine Bewertung gefallen identifizieren diese, sondern diejenigen, die sie schreiben (und das bewertete Produkt). Löscht ein Kunde seinen Account, darf es keine Bewertungen mehr geben, von denen der Kunde Autor ist, aber es darf weiterhin Bewertungen geben, für die er oder sie ein Like abgegeben hat. In der Modellierung mit der &quot;bewertet&quot;-Beziehung (vorherige Folie oben) ist es nicht möglich, Bewertungslikes zu modellieren.</aside>
+                                </section>
 
-      <section>
-        <h3>Konstruktoren</h3>
-        <div style="position: absolute; top: 50px; right:50px; font-size:100px"><i class="fas fa-star red"></i></div>
-        <p class="small">Konstruktoren erzeugen neue Objekte der Klasse. <br>
-          Sie sind immer <code>public</code> und werden mit <code>new</code> aufgerufen.</p> 
-        
-        <h4>Default-Konstruktor</h4>
-        <pre><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personen/Person.java#39-40'></code></pre>  
-        <pre><code class="java">Person p = new Person();</code></pre>
+                                <section>
+                                    <h3>N:M- vs. zwei 1:N-Beziehungen</h3>
+                                    <div id="er_drink_bad" style="height: 173px; overflow:hidden">
+                                            <div class="stretch erd">
+                                                    [[
+                                                     { _e: "Gäste", pos: [150, 100],
+                                                      attributes: [
+                                                       { _a:"Kundennr", options:["primary"], pos: [89, 25] },
+                                                       { _a:"Tischnr", pos: [245, 25] }
+                                                      ]
+                                                     },
+                                                     { _e: "Getränke", pos: [530, 100],
+                                                       attributes: [
+                                                        { _a:"Bezeichnung", pos: [475, 25], options:["primary"] },
+                                                        { _a:"Preis", pos: [627, 25]}
+                                                       ]
+                                                     }
+                                                    ],
+                                                    [
+                                                    { _r: "trinken",
+                                                       _e: ["Gäste", "Getränke"],
+                                                       card: ["N", "M"]
+                                                     }
+                                                    ]]
+                                                                </div>
+                                                            </div>
 
-        <h4 class="fragment" data-fragment-index="1">Benutzerdefinierte Konstruktoren</h4>
-        <pre class="fragment" data-fragment-index="1"><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personen/Person.java#7-9'></code></pre>  
-        <pre class="fragment" data-fragment-index="1"><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personen/Person.java#32'></code></pre>  
-        <aside class="notes">Wenn man in einer Klasse keinen Konstruktor definiert, hat diese standardmäßig den hier gezeigten Default-Konstruktor ohne Parameter.</aside>
-      </section>
+                                            <div class="fragment" id="er_drink_good" style="margin-top: -20px">
+                                                <p style="font-size:70%; z-index:9999999 !important">Besser:</p>
+                                                    <div class="stretch erd" style="margin-top: -25px;">
+                                                            [[
+                                                                { _e: "Gäste", pos: [20, 100],
+                                                                attributes: [
+                                                                { _a:"Kundennr", options:["primary"], pos: [5, 25] },
+                                                                { _a:"Tischnr", pos: [120, 25] }
+                                                                ]
+                                                                },
+                                                                { _e: "Bestellpositionen", pos: [350, 100], options: ["weak"],
+                                                                attributes: [
+                                                                { _a:"Positionsnr.", options:["extending_primary"], pos: [375, 25] }
+                                                                ]
+                                                                },
+                                                                { _e: "Getränke", pos: [750, 100],
+                                                                attributes: [
+                                                                { _a:"Bezeichnung", pos: [695, 25], options:["primary"] },
+                                                                { _a:"Preis", pos: [847, 25]}
+                                                                ]
+                                                                }
+                                                            ],
+                                                            [
+                                                            { _r: "geben auf",
+                                                                _e: ["Gäste", "Bestellpositionen"], options: ["weak"],
+                                                                card: ["1", "N"]
+                                                                },
+                                                                { _r: "von",
+                                                                _e: ["Bestellpositionen", "Getränke"],
+                                                                card: ["N", "1"]
+                                                                }
+                                                            ]]
+                                                                        </div>
+                                                                    </div>
 
-      <section>
-      <h3>Konstruktoren: <code>this(...)</code></h3>
-      <p class="small">Konstruktoren können verkettet werden, indem sie andere Konstruktoren aufrufen.</p>
-      <pre><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personen/Person.java#42-45'></code></pre>  
-      <pre><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personen/Person.java#47-49'></code></pre> 
-      <ul class="fragment small">
-        <li>Es darf nur max. 1 anderer Konstruktor aufgerufen werden</li>
-        <li>Der <code>this(...)</code>-Aufruf muss die erste Anweisung im Konstruktor sein</li>
-      </ul>
-    </section>
+                                    <aside class="notes">Gäste bestellen in einer Bar Getränke. Ein Gast kann mehrere Getränke trinken (Kunde Nr. 5 trinkt Rotwein und Mineralwasser) und ein Getränk kann von mehreren Gästen bestellt werden (Kunden 7 und 8 trinken Weißwein). Das Problem hier ist jedoch, dass niemand ein bestimmtes Getränk mehrfach trinken kann. Wir lösen das Problem, indem ein Kunde mehrere Bestellpositionen aufgibt. Jede Position erhält eine für den Kunden eindeutige Nummer und enthält nur ein Getränk. Bestellt ein Kunde 2x Rotwein und 1x Mineralwasser, werden dazu drei Bestellpositionen erfasst.</aside>
+                                </section>
 
-      <section>
-        <h3>Methoden: <code>void</code></h3>
-        <div class="trackinfo"><i class="fas fa-book"></i> 9</div>
-        <div style="position: absolute; top: 50px; right:50px; font-size:100px"><i class="fas fa-meh-blank red"></i></div>
-        <p class="small"><code>&lt;Sichtbarkeit&gt; &lt;Rückgabetyp&gt;  &lt;Methodenname&gt;(&lt;Parametertyp&gt; &lt;Parametername&gt;, ...) { ... }</code></p>
-      
-        <h4><code>void</code> (keine Rückgabe)</h4>
-        <pre><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personen/Person.java#27-29'></code></pre>  
-        <pre><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personen/Person.java#34'></code></pre>  
-      </section>
+                                <section>
+                                    <h2>Ternäre Beziehungen</h2>
+                                    <div class="trackinfo"><i class="fas fa-headphones"></i> 13</div>
+                                    <ul>
+                                        <li>Bisher: Beziehungs-Grad = 2 (binäre Beziehung)</li>
+                                        <li>Grad: Anzahl der teilnehmenden Entitätstypen</li>
+                                        <li>Ternäre Beziehung: Grad = 3</li>
+                                    </ul>
+                                    <div id="er_degree_3">
+                                            <div class="stretch erd">
+                                                    [[
+                                                     { _e: "Kunden", pos: [150, 100],
+                                                      attributes: [
+                                                       { _a:"Kundennr", options:["primary"], pos: [89, 13] },
+                                                       { _a:"Name", pos: [245, 13] }
+                                                      ]
+                                                     },
+                                                     { _e: "Tarife", pos: [530, 100],
+                                                       attributes: [
+                                                        { _a:"Bezeichnung", pos: [475, 25], options:["primary"] },
+                                                        { _a:"Mindestlaufzeit", pos: [599, 25]},
+                                                        { _a:"Preis", pos: [698, 71]}
+                                                       ]
+                                                     },
+                                                     { _e: "Fitnessstudios", pos: [334, 277],
+                                                       attributes: [
+                                                        { _a:"Strasse", pos: [205, 212], options:["primary"] },
+                                                        { _a:"Hausnummer", pos: [205, 275], options:["primary"] },
+                                                        { _a:"Ort", pos: [510, 274], options:["primary"] }
+                                                       ]
+                                                     }
+                                                    ],
+                                                    [
+                                                     { _r: "buchen",
+                                                       _e: ["Kunden", "Tarife", "Fitnessstudios"],
+                                                       card: ["N", "1", "M"],
+                                                       attributes: [{_a:"Datum", pos: [462, 195]}]
+                                                     }
+                                                    ]]
+                                                                </div>
+                                                            </div>
+                                </section>
+                                <section>
+                                    <h2>Ternäre Beziehungen</h2>
+                                    <div data-clone="er_degree_3"></div>
+                                    <ul style="position: absolute; top:500px; font-size: 80%">
+                                        <li>Ein Kunde kann in einem Fitnessstudio nur <b>einen</b> Tarif buchen</li>
+                                        <li>Ein Kunde kann einen Tarif in <b>vielen</b> Studios buchen</li>
+                                        <li>Ein Tarif kann in einem Studio von <b>vielen</b> Kunden gebucht werden</li>
+                                    </ul>
+                                    <aside class="notes">Auch hier beginnt man zum korrekten Annotieren der Kardinalitäten den Satz wieder mit &quot;Ein...ein...&quot;.</aside>
+                                </section>
+                                <section>
+                                    <h3>Ternäre vs. drei binäre Beziehungen</h3>
+                                    <div>
+                                    <div class="stretch erd">
+                                            [[
+                                             { _e: "Kunden", pos: [150, 100],
+                                              attributes: [
+                                               { _a:"Kundennr", options:["primary"], pos: [89, 13] },
+                                               { _a:"Name", pos: [245, 13] }
+                                              ]
+                                             },
+                                             { _e: "Tarife", pos: [530, 100],
+                                               attributes: [
+                                                { _a:"Bezeichnung", pos: [475, 25], options:["primary"] },
+                                                { _a:"Mindestlaufzeit", pos: [599, 25]},
+                                                { _a:"Preis", pos: [698, 71]}
+                                               ]
+                                             },
+                                             { _e: "Fitnessstudio", pos: [334, 277],
+                                               attributes: [
+                                                { _a:"Strasse", pos: [205, 250], options:["primary"] },
+                                                { _a:"Hausnummer", pos: [205, 320], options:["primary"] },
+                                                { _a:"Ort", pos: [510, 274], options:["primary"] }
+                                               ]
+                                             }
+                                            ],
+                                            [
+                                             { _r: "buchen",
+                                               _e: ["Kunden", "Tarife"],
+                                               card: ["N", "1"],
+                                               attributes: [{_a:"Datum", pos: [364, 27]}]
+                                             },
+                                             { _r: "angemeldet bei", pos: [284, 188],
+                                               _e: ["Kunden", "Fitnessstudio"],
+                                               card: ["N", "M"]                                             
+                                             },
+                                             { _r: "buchen",
+                                               _e: ["Kunden", "Tarife"],
+                                               card: ["N", "1"],
+                                               attributes: [{_a:"Datum", pos: [364, 27]}]
+                                             },
+                                             { _r: "gilt in", pos: [452, 193],
+                                               _e: ["Fitnessstudio", "Tarife"],
+                                               card: ["N", "M"]
+                                             }
+                                            ]]
+                                                        </div>
+                                                    </div>
+                                            <ul style="position: absolute; top:500px; font-size: 80%">
+                                                    <li>Ein Kunde bucht stets nur <b>einen</b> Studio-übergreifenden Tarif.</li>
+                                                    <li>Ein Kunde kann bei <b>vielen</b> Studios angemeldet sein</li>
+                                                    <li>Ein Tarif ist in <b>vielen</b> Fitnessstudios gültig</li>
+                                                </ul>
+                                            <aside class="notes">Diese Lösung ist nicht weniger oder mehr richtig als die Lösung mit der ternären Beziehung auf der vorherigen Folie, aber sie modelliert eine komplett andere Miniwelt.</aside>
+                                </section>
 
-      <section>
-        <h3>Methoden: <code>return</code></h3>
-        <div class="trackinfo"><i class="fas fa-book"></i> 9.3</div>
-        <div style="position: absolute; top: 50px; right:50px; font-size:100px"><i class="fas fa-surprise red"></i></div>
-        <p class="small"><code>&lt;Sichtbarkeit&gt; &lt;Rückgabetyp&gt;  &lt;Methodenname&gt;(&lt;Parametertyp&gt; &lt;Parametername&gt;, ...) { ... }</code></p>
+                                <section>
+                                    <h2>Generalisierung</h2>
+                                    <div class="trackinfo"><i class="fas fa-headphones"></i> 13</div>
+                                    <ul>
+                                        <li>Spezialisierung, Vererbung</li>
+                                        <li>Attribute, Primärschlüssel und<br>Beziehungen des Super-Typen<br>werden an die Sub-Typen<br>vererbt.</li>
+                                        <li>&quot;is-a&quot;-Pfeil im ER-Diagramm</li>
+                                    </ul>
+                                    <div style="position:absolute; left: 620px; top: 150px; height: 400px; overflow:hidden;">
+                                    <div class="erd" style="width: 400px;">
+                                            [[
+                                             { _e: "Kunden", pos: [110, 100],
+                                              attributes: [
+                                                { _a:"Kundennr", options:["primary"], pos: [15, 10] },
+                                                { _a:"Name", pos: [130, 10] },
+                                                { _a:"E-Mail", pos: [250, 10] }
+                                              ]
+                                             },
+                                             { _e: "Privatkunden", pos: [10, 250], isa: {_e:"Kunden"},
+                                                attributes: []},
+                                             { _e: "Geschäftskunden", pos: [200, 250], isa: {_e:"Kunden"}, 
+                                                attributes: []}
+                                            ],
+                                            [
+                                            ]]
+                                    </div></div>
+                                    <div class="poll fragment" style="left: 0px; bottom:-180px">
+                                        <h1>Welche Attribute hat ein Privatkunde?</h1>
+                                          <ul>
+                                            <li>Nur Kundennr</li>
+                                            <li>Keine</li>
+                                            <li data-poll="correct">Kundennr, Name, E-Mail</li>
+                                            <li>Kundennr, Name, E-Mail, Type-Tag</li>
+                                          </ul>
+                                        <h2>https://frage.space</h2>
+                                    </div>
+                                    <aside class="notes">Der Entitätstyp &quot;Kunden&quot; hat zwei Sub-Typen &quot;Privatkunden&quot; und &quot;Geschäftskunden&quot;. In unserer Datenbank können wir also für jeden Kunden speichern, ob er einfach nur Kunde ist, oder aber auch Geschäftskunde und Privatkunde. Es gibt Notationen, in der Überlappungen (Mehrklassenzugehörigkeit) und abstrakte Typen (nicht instanziierbar) modelliert werden können. In unserer Notation ist eine Entität stets nur eine direkte Instanz von einem Entitätstypen, und damit implizit auch Instanz von dessen Super-Typen. Jeder Privatkunde ist also auch Kunde. Subtypen können auch wieder Subtypen haben, sodass sich komplexe Typhierarchien modellieren lassen.</aside>
+                                </section>
 
-        <pre><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personenadresse/Person.java#28-31'></code></pre>  
-        <pre><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personenadresse/Person.java#62-66'></code></pre>  
-      
-        <aside class="notes">Wird für die Methode ein Rückgabetyp spezifiziert, muss in jedem Falle ein <code>return</code>-Statement aufgerufen werden, in dem das Ergebnis der Methode zurückgegeben wird. In der Regel wird beim Aufruf der Methode deren Ergebnis in eine entsprechend getypte Variable geschrieben. Ist man jedoch nicht am Ergebnis sondern lediglich an der Ausführung interessiert, kann man die Methode auch einfach so ohne eine Variablenzuweisung aufrufen.</aside>
-      </section>
+                                <section>
+                                    <h2>Generalisierung</h2>
+                                    <div class="erd stretch">
+                                            [[
+                                             { _e: "Kunden", pos: [110, 100],
+                                              attributes: [
+                                                { _a:"Kundennr", options:["primary"], pos: [15, 10] },
+                                                { _a:"Name", pos: [130, 10] },
+                                                { _a:"E-Mail", pos: [250, 10] }
+                                              ]
+                                             },
+                                             { _e: "Privatkunden", pos: [10, 250], isa: {_e:"Kunden"},
+                                                attributes: [ {_a:"Bonuspunke", pos: [35, 334]} ]},
+                                             { _e: "Geschäftskunden", pos: [200, 250], isa: {_e:"Kunden"}, 
+                                                attributes: [ { _a:"USt-IdNr.", pos: [225, 334]} ]},
+                                            { _e: "Produkte", pos: [730, 100],
+                                                attributes: [
+                                                { _a:"Produktnr", options:["primary"], pos: [690, 10] }, 
+                                                { _a:"...", pos: [810, 10] }
+                                                ]
+                                            }
+                                            ],
+                                            [
+                                            { _r: "bewerten",
+                                                _e: ["Kunden", "Produkte"],
+                                                card: ["N", "M"],
+                                                attributes: [ {_a:"Sterne", pos: [390, 10] }, {_a:"Text", pos: [500, 10] } ]
+                                            },
+                                            { _r: "verkaufen", pos: [538, 189],
+                                                _e: ["Geschäftskunden", "Produkte"],
+                                                card: ["1", "N"]
+                                            }
+                                            ]]
+                                    </div>
+                                    <aside class="notes">Das ER-Diagramm wurde erweitert um Subtypen-spezifische Attribute und Beziehungen. Nur Geschäftskunden können Produkte verkaufen, aber alle Kunden können sie bewerten. Privatkunden sammeln Bonuspunkte und für Geschäftskunden wird die Umsatzsteuernummer vermerkt.</aside>
+                                </section>
+                                
+                                <section>
+                                    <h2>Notationsformen</h2>
+                                    <div class="columns">
+                                <div style="width:100%">
+                                    <p style="font-size: 62%">https://de.wikipedia.org/wiki/Entity-Relationship-Modell</p>
+                                    <p>Wir verwenden die <em>Chen-Notation</em><br>&nbsp;</p>
+                                    
+                                    <p>Nicht anpassbar in Chen:</p>
+                                    <ul>
+                                        <li>Es gibt Orte ohne Personen</li>
+                                        <li>Es gibt Personen ohne Ort</li>
+                                    </ul>
+                                </div>
+                                <div style="text-align: right; width: 550px">
+                                    <img src="img/2/ERD_Darstellungen.png" style="height:520px; width:329px; border:0; box-shadow: none;">
+                                </div>
+                                </section>
+                                <section>
+                                    <h2>Krähenfuß-Notation</h2>
+                                    <img style="width:6cm; position: absolute; right:0px" uml="entity Person {
+                                        PersNr
+                                        --
+                                        Name
+                                        Geburtsdatum
+                                      }
+                                      entity Ort {
+                                        Ort
+                                        --
+                                      }
+                                      Person }o--|| Ort : geboren_in"/>
+                                      <p class="small">Die Krähenfuß-Notation kommt in vielen<br>Datenbank-Modellierungs-Tools zum Einsatz.</p>
+                                    <ul>
+                                        <li><img class="noborder" style="height:36px; vertical-align: middle;" border="0" src="img/2/crow_11.png"> Genau eins</li>
+                                        <li><img class="noborder" style="height:36px; vertical-align: middle;" border="0" src="img/2/crow_01.png"> Höchstens eins</li>
+                                        <li><img class="noborder" style="height:36px; vertical-align: middle;" border="0" src="img/2/crow_1n.png"> Mindestens eins</li>
+                                        <li><img class="noborder" style="height:36px; vertical-align: middle;" border="0" src="img/2/crow_0n.png"> Mindestens keins (beliebig viele)</li>
+                                    </ul>
 
-      <section>
-        <h3>Methoden: Parameter</h3>
-        <div class="trackinfo"><i class="fas fa-book"></i> 9.2</div>
+                                    <aside class="notes">In der Krähenfuß-Notation kann erzwungen werden, dass jede Entität eines Entitätstypen mindestens einmal an einer Beziehung teilnehmen muss. Das Diagramm auf dieser Folie sagt, dass jede Person in einem Ort geboren sein muss. Würde man auf der Minimum-Seite statt dem | eine 0 schreiben, kann es Personen ohne Geburtsort geben. Dies entspräche der Chen-Notation N:1 auf der vorherigen Folie oben. Das <img style="height:16px" border="0" src="img/2/crow_0n.png"> im Diagramm bedeutet, dass es Orte mit vielen Personen, aber auch Orte ohne Personen geben kann. In der Chen-Notation gibt es nur 1 und N, was hier <img style="height:16px" src="img/2/crow_01.png"> und <img style="height:16px" border="0" src="img/2/crow_0n.png"> entspricht.</aside>
+                                </section>
+                                <!--<section>
+                                    <h2>Modifizierte Chen-Notation</h2>
+                                    <div style="margin-left: 220px; height: 150px; overflow: hidden;">
+                                                <div class="erd">
+                                                        [[
+                                                            { _e: "Personen", pos: [20, 25],
+                                                            attributes: [
+                                                            ]
+                                                            },
+                                                            { _e: "Orte", pos: [350, 25],
+                                                            attributes: [
+                                                            ]
+                                                            }
+                                                        ],
+                                                        [
+                                                        { _r: "geboren in",
+                                                            _e: ["Personen", "Orte"],
+                                                            card: ["mc", "1"]
+                                                            }
+                                                        ]]
+                                                                    </div>
+                                                                </div>
+                                    <ul>
+                                        <li><b>1</b>: Genau eins</li>
+                                        <li><b>c</b> (choice): Höchstens eins</li>
+                                        <li><b>m</b> (multiple): Mindestens eins</li>
+                                        <li><b>mc</b>: Mindestens keins (beliebig viele)</li>
+                                    </ul>
+                                    <aside class="notes">In der modifizierten Chen-Notation kann erzwungen werden, dass jede Entität eines Entitätstypen mindestens einmal an einer Beziehung teilnehmen muss. Das Diagramm auf dieser Folie sagt, dass jede Person in einem Ort geboren sein muss. Würde man statt der 1 ein c schreiben, kann es Personen ohne Geburtsort geben. Dies entspräche der Chen-Notation N:1 auf der vorherigen Folie oben. Das mc im Diagramm bedeutet, dass es Orte mit vielen (m) Personen, aber auch Orte ohne (c) Personen geben kann. In der normalen Chen-Notation gibt es nur 1 und N, was hier c und mc entspricht.</aside>
+                                </section>
+                                <section>
+                                    <h2>Min-Max-Notation</h2>
+                                    <div style="margin-left: 220px; height: 130px; overflow: hidden;">
+                                            <div class="erd">
+                                                    [[
+                                                        { _e: "Personen", pos: [20, 25],
+                                                        attributes: [
+                                                        ]
+                                                        },
+                                                        { _e: "Orte", pos: [350, 25],
+                                                        attributes: [
+                                                        ]
+                                                        }
+                                                    ],
+                                                    [
+                                                    { _r: "geboren in",
+                                                        _e: ["Personen", "Orte"],
+                                                        card: ["(1,1)", "(7,N)"]
+                                                        }
+                                                    ]]
+                                                                </div>
+                                                            </div>
+                                        <p><i class="fas fa-exclamation-circle red"></i> Achtung: Umgekehrte Schreibweise!</p>
+                                        <ul>
+                                            <li>(min, max) steht zw. Entitätstyp E und Beziehung R</li>
+                                            <li>0 &le; min &le; max; max &ge; 1</li>
+                                            <li>Jede Entität aus E muss an mindestens min und höchstens max Ausprägungen von R enthalten sein.</li>
+                                        </ul>
+                                        <aside class="notes">(1,1) entspricht der 1 in der modifizierten Chen-Notation, (0,1) dem c, (0,N) entspricht m und (1,N) mc. Das in diesem Diagramm notierte (7,N) bedeutet: Jeder Ort muss an mindestens 7 Beziehungsinstanzen teilnehmen, maximal an beliebig vielen. Das heißt, dass in jedem Ort mind. 7 Personen geboren sein müssen (auch wenn das Blödsinn ist; nur fürs Beispiel). Jede Person hat aber nur genau einen Geburtsort.</aside>
+                                </section>
+                                <section>
+                                    <h2>Ternäre Bez. in Min-Max</h2>
+                                    <div>
+                                            <div class="stretch erd">
+                                                    [[
+                                                     { _e: "Kunden", pos: [150, 100],
+                                                      attributes: [
+                                                       { _a:"Kundennr", options:["primary"], pos: [89, 13] },
+                                                       { _a:"Name", pos: [245, 13] }
+                                                      ]
+                                                     },
+                                                     { _e: "Tarife", pos: [530, 100],
+                                                       attributes: [
+                                                        { _a:"Bezeichnung", pos: [475, 25], options:["primary"] },
+                                                        { _a:"Mindestlaufzeit", pos: [599, 25]},
+                                                        { _a:"Preis", pos: [698, 71]}
+                                                       ]
+                                                     },
+                                                     { _e: "Fitnessstudio", pos: [334, 277],
+                                                       attributes: [
+                                                        { _a:"Strasse", pos: [205, 212], options:["primary"] },
+                                                        { _a:"Hausnummer", pos: [205, 275], options:["primary"] },
+                                                        { _a:"Ort", pos: [510, 274], options:["primary"] }
+                                                       ]
+                                                     }
+                                                    ],
+                                                    [
+                                                     { _r: "buchen",
+                                                       _e: ["Kunden", "Tarife", "Fitnessstudio"],
+                                                       card: ["(0,N)", "(0,N)", "(0,N)"],
+                                                       attributes: [{_a:"Datum", pos: [462, 195]}]
+                                                     }
+                                                    ]]
+                                                                </div>
+                                                            </div>
+                                        <aside class="notes">Kunden können viele Tarife buchen, jeder Tarif kann mehrfach gebucht werden und in einem Fitnessstudio können mehrfach Tarife gebucht werden. In der Chen-Notation konnten wir modellieren, dass ein Kunde in ein und dem selben Fitnessstudio nur einen einzigen Tarif buchen kann. Dies ist in der (Min,Max)-Notation so nicht darstellbar. Hier muss sich lediglich für jeden Entitätstyp gefragt werden: Kann es vorkommen, dass eine Entität dieses Typs nie an der Beziehung teilnimmt und dass sie mehrfach teilnimmt? Gibt es Kunden, die nichts (0) buchen? Ja. Gibt es Kunden die mehrmals (N) buchen? Ja (in einem anderen Fitnessstudio). Daher (0,N).</aside>
+                                </section>-->
 
-        <pre><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personenadresse/Person.java#33-36'></code></pre>  
-        <pre><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personenadresse/Person.java#44-46'></code></pre>  
-    
-        <aside class="notes">Methodenparameter werden Komma-getrennt in die Klammern hinter den Methodennamen geschrieben. Jeder Parameter hat einen Datentypen und einen lokalen Variablennamen. Die beiden hier gezeigten Methoden <em>überladen</em> die existierenden Methoden <code>erhoeheAlter()</code> und <code>setName(String)</code> (Overloading; siehe nächste Folie).</aside>
-      </section>
-      
-      <section>
-        <h3>Methoden: Overloading</h3>
-        <p class="small">Eine Klasse kann mehrere Methoden mit dem <em>gleichen Namen</em>, aber <em>unterschiedlichen Parametern</em> besitzen.</p>
-        <pre style="width:92%"><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personenadresse/Person.java#33-42'></code></pre>  
-        <pre style="width:92%"><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personenadresse/Person.java#86-88'></code></pre>  
-        <aside class="notes">Zur Compile-Zeit wird ermittelt, welche Methode tatsächlich aufgerufen werden soll. Es wird diejenige gewählt, die die richtige Anzahl an Parametern hat und kompatible Parametertypen besitzt. Gibt es mehrere Möglichkeiten, wird diejenige mit dem speziellsten Typ gewählt. Gibt es mehrere Kandidaten, in einer passt der eine Parameter besser, ein anderer aber schlechter, wird ein Compile-Fehler auftreten.</aside>
-      
-        <div class="poll fragment" style="bottom:0px">
-          <h1>Dürfte es in der Personen-Klasse zusätzlich zu den hier gezeigten Methoden auch noch eine erhoeheAlter()-Methode ohne Parameter geben?</h1>
-            <ul>
-              <li data-poll="correct">Ja</li>
-              <li>Nein</li>
-            </ul>
-          <h2>https://frage.space</h2>
-         </div>
-      </section>
+                                <section>
+                                    <h2>Kapitelzusammenfassung</h2>
+                                    <ul>
+                                        <li>DB-Entwurf mit ER-Diagrammen</li>
+                                        <li>Entitätstypen, Attribute, Beziehungen</li>
+                                        <li>Primärschlüssel</li>
+                                        <li>Schwache Entitätstypen</li>
+                                        <li>Ternäre Beziehungen</li>
+                                        <li>Generalisierung</li>
+                                        <li>Krähenfuß-Notation</li>
+                                    </ul>
+                                </section>
 
-      <section>
-        <h3><code>static</code>: Statische Attribute</h3>
-        <div class="trackinfo"><i class="fas fa-book"></i> 11.1</div>
-        <p class="small">Mit <code>static</code> gekennzeichnete Attribute existieren nur einmal (nicht pro Objekt).</p>
-        <pre style="width:19.5cm; margin-left: 0px;"><code style="max-height: 1000px" class="java" contenteditable data-sample-indent="keep" data-sample='code/Programmieren2/src/de/othr/personen/Haustier.java#3-18'></code></pre>  
-        <img style="position: absolute; right:0cm; top:4.5cm; width:5.5cm" uml="class Haustier {
-          {static}+TIERART : String = &quot;Hund&quot;
-          {static}+farbe : String
-          -name : String
-          +Haustier(name : String)
-          {static}+main(args : String[])
-        }        
-        "/>
-        <aside class="notes">Ein typischer Einsatzzweck für statische Attribute sind Konstanten (hier: <code>TIERART</code>). Was hier mit dem statischen Attribut <code>farbe</code> gemacht wurde, ist jedoch eher unüblich. Jedes Objekt hat stets den gleichen Wert in diesem Attribut. Auf statische Attribute kann man auch mit <code>Klassenname.attribut</code> zugreifen.</aside>
-      </section>
+                                <section>
+                                    <h3>Kochrezept: ER-Diagramm erstellen</h3>
+                                    <div style="position: absolute; top: 80px; right:0px; font-size:250px"><i class="fas fa-highlighter green"></i></div>
+                                    <ol>
+                                        <li>Text lesen; beim Lesen markieren;<br>wichtige Zusatzinfos unterstreichen
+                                            <ul>
+                                                <li><mark style="background-color:violet; color:black">Rosa</mark>: Entitätstypen</li>
+                                                <li><mark style="background-color:yellow; color:black">Gelb</mark>: Attribute</li>
+                                                <li><mark style="background-color:greenyellow; color:black">Grün</mark>: Beziehungen</li>
+                                            </ul>
+                                            
+                                        </li>
+                                        <li>Das Markierte in ER-Diagramm überführen</li>
+                                        <li>Nochmals Text lesen und ER-Diagramm überprüfen</li>
+                                        <li>Letzte Überprüfung mittels Checkliste (nächste Folie)</li>
+                                    </ol>
+                                </section>
+                                <section>
+                                    <h3>Checkliste: ER-Diagramm erstellen</h3>
+                                    <div style="position: absolute; top: 80px; right:0px; font-size:200px"><i class="fas fa-tasks green"></i></div>
+                                    <p><i class="far fa-square"></i> Sind alle Kardinalitäten an Beziehungen?</p>
+                                    <p><i class="far fa-square"></i> Kardinalitäten richtig herum?</p>
+                                    <p><i class="far fa-square"></i> Gibt es überflüssige Entitätstypen?</p>
+                                    <p><i class="far fa-square"></i> Hat jeder Entitätstyp einen Primärschlüssel?</p>
+                                    <p><i class="far fa-square"></i> Müssen manche Entitätstypen schwach sein?</p>
+                                    <p><i class="far fa-square"></i> Ist die entsprechende Beziehung doppelt umrahmt?</p>
+                                    <p><i class="far fa-square"></i> Sind erweiternde Primärschlüssel unterstrichelt?</p>
+                                    <p><i class="far fa-square"></i> Sind Generalisierungen korrekt modelliert?</p>
+                                </section>
+                                <section>
+                                    <h3>Beispielaufgabe</h3>
+                                <p>
+                                    Eine Bibliothek möchte eine Datenbank einsetzen, um Bücher zu speichern. Jedes Buch hat eine eindeutige ISBN, mehrere Autoren, und einen Titel. Bücher sind von einem Verlag. Von einem Verlag kann es mehrere Bücher geben. Jeder Verlag wird durch eine Verlags-ID identifiziert und hat einen Namen sowie einen Ort. 
+                                </p>
+                                </section>
+                                <section>
+                                    <h3>Beispielaufgabe</h3>
+                                    <p>
+                                            Eine Bibliothek möchte eine Datenbank einsetzen, um <mark style="background-color:violet; color:black">Bücher</mark> zu speichern. Jedes Buch hat eine <u style="text-decoration-color: gold">eindeutige</u> <mark style="background-color:yellow; color:black">ISBN</mark>, <u style="text-decoration-color: gold">mehrere</u> <mark style="background-color:yellow; color:black">Autoren</mark>, und einen <mark style="background-color:yellow; color:black">Titel</mark>. <mark style="background-color:greenyellow; color:black">Bücher sind von einem Verlag</mark>. <u style="text-decoration-color: greenyellow">Von einem Verlag kann es mehrere Bücher geben</u>. Jeder <mark style="background-color:violet; color:black">Verlag</mark> wird durch eine <mark style="background-color:yellow; color:black">Verlags-ID</mark> <u style="text-decoration-color: gold">identifiziert</u> und hat einen <mark style="background-color:yellow; color:black">Namen</mark> sowie einen <mark style="background-color:yellow; color:black">Ort</mark>. 
+                                    </p>
+                                    <div style="height: 300px; overflow:hidden">
+                                            <div class="stretch erd">
+                                                    [[
+                                                     { _e: "Bücher", pos: [150, 100],
+                                                      attributes: [
+                                                       { _a:"ISBN", options:["primary"], pos: [50, 13] },
+                                                       { _a:"Autoren", options: ["multi"], pos: [175, 13] },
+                                                       { _a:"Titel", pos: [295, 13] }
+                                                      ]
+                                                     },
+                                                     { _e: "Verlage", pos: [530, 100],
+                                                       attributes: [
+                                                        { _a:"Verlags-ID", pos: [475, 25], options:["primary"] },
+                                                        { _a:"Name", pos: [595, 25] },
+                                                        { _a:"Ort", pos: [702, 63] }
+                                                       ]
+                                                     }
+                                                    ],
+                                                    [
+                                                     { _r: "sind von",
+                                                       _e: ["Bücher", "Verlage"],
+                                                       card: ["N", "1"]
+                                                     }
+                                                    ]]
+                                                                </div></div>
+                                </section>
 
-      <section>
-        <h3><code>static</code>: Statische Methoden</h3>
-        <p class="small">Statische Methoden...</p>
-        <ul class="small" style="margin-top: -5mm;">
-          <li>... haben keinen Bezug zu einem Objekt (kein <code>this</code>),</li>
-          <li>... werden mittels <code>Klassenname.methode(...)</code> aufgerufen,</li>
-          <li>... haben keinen Zugriff auf nicht-statische Attribute,</li>
-          <li>... können keine nicht-statischen Methoden aufrufen.</li>
-        </ul>
-        <pre><code style="max-height: 1000px" class="java" contenteditable data-sample-indent="keep" data-sample='code/Programmieren2/src/de/othr/rechnen/Geld.java#3-9,14-19'></code></pre>  
-        
-        <img style="position: absolute; right:0cm; top:1.8cm; width:7.5cm; z-index: 1;" uml="class Geld {
-          {static}+WAEHRUNG : String = &quot;EUR&quot;
-          {static}+addieren(a : double, b : double) : double
-          {static}+main(args : String[])
-        }        
-        "/>
-        
-        <aside class="notes">In der statischen Methode <code>main</code> kann die andere statische Methode <code>addieren</code> aufgerufen werden. Da sie sich hier in der gleichen Klasse befindet, müsste man auch nicht <code>Geld.</code> vor die Methode schreiben.</aside>
-      </section>
+                                <section>
+                                    <h3>Falsche Lösung</h3>
+                                    <div class="fragment" style="position: absolute; top: -70px; left:300px; font-size: 600px; z-index: 99999;"><i class="fas fa-times red"></i></div>
+                                    <div>
+                                            <div class="stretch erd">
+                                                    [[
+                                                    { _e: "Bibliothek", pos: [30, 100],
+                                                      attributes: [
+                                                      ]
+                                                     },
+                                                     { _e: "Datenbank", pos: [180, 300],
+                                                      attributes: [
+                                                      ]
+                                                     },
+                                                     { _e: "Bücher", pos: [350, 100],
+                                                      attributes: [
+                                                       { _a:"ISBN", pos: [250, 13] },
+                                                       { _a:"Autoren", options: ["multi"], pos: [375, 13] },
+                                                       { _a:"Titel", pos: [495, 13] }
+                                                      ]
+                                                     },
+                                                     { _e: "Verlage", pos: [730, 100],
+                                                       attributes: [
+                                                        { _a:"Verlags-ID", pos: [675, 25], options:["primary"] },
+                                                        { _a:"Name", pos: [795, 25] }
+                                                       ]
+                                                     }
+                                                    ],
+                                                    [
+                                                     { _r: "sind von",
+                                                       _e: ["Bücher", "Verlage"],
+                                                       card: ["1", "N"]
+                                                     },
+                                                     { _r: "setzt ein",
+                                                       _e: ["Bibliothek", "Datenbank"],
+                                                       card: ["1", "1"]
+                                                     },
 
-      <section>
-        <h3>Methoden: varargs</h3>
-        <div class="trackinfo"><i class="fas fa-book"></i> 9.2</div>
-        <ul class="small">
-          <li>Der letzte (oder einzige) Methodenparameter darf variadisch sein</li>
-          <li>Der variadische Parameter erscheint in der Methode als Array</li>
-        </ul>
-        <pre><code style="max-height: 1000px" class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/varargs/Geld.java#6-10'></code></pre>
-        <ul class="small">
-          <li>Methodenaufruf mit einer beliebigen Anzahl von Parametern möglich</li>
-        </ul>
-        <pre><code style="max-height: 1000px" class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/varargs/Geld.java#16-19'></code></pre>  
-        <div class="poll fragment" style="bottom:-80px">
-          <h1>Was liefert Geld.addieren() zurück?</h1>
-            <ul>
-              <li data-poll="correct">0</li>
-              <li>null</li>
-              <li>ein leeres Array</li>
-              <li>einen Fehler</li>
-            </ul>
-          <h2>https://frage.space</h2>
-         </div>
-        <aside class="notes">Würde man die Methode als <code>addieren(double[] args)</code> definieren, sähe ihre Implementierung nicht anders aus, allerdings müsste man die Methode dann tatsächlich mit einem Double-Array aufrufen als einzigen Parameter aufrufen. Die Varargs-Schreibweise <code>(double...)</code> ermöglicht es, die Methode mit einer beliebigen Anzahl von Parametern aufzurufen. Auch der Aufruf <code>Geld.addieren()</code> wäre möglich und würde 0 zurückgeben. Im unteren Beispiel ist zu sehen, dass sogar die <code>main</code>-Methode variadisch definiert sein kann. Dies hat jedoch gegenüber <code>String[] args</code> keine Vorteile.</aside>
-      </section>
-
-      <section>
-        <h2>UML</h2>
-        <h4>Unified Modelling Language</h4>
-        <p class="small" style="width:18cm;">Standardisierte grafische Sprache, die 14 Diagrammtypen zur Modellierung von Software-Systemen bietet:</p>
-
-        <ul class="small">
-          <li>Klassendiagramm (Beispiel: Klasse <code>Person</code>) &UpperRightArrow;</li>
-          <li>Objektdiagramm (Beispiel: Objekt <code>p</code>) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &LowerRightArrow;</li>
-          <li>Sequenzdiagramm</li>
-          <li>...</li>
-        </ul>
-
-        <img style="position: absolute; right:0cm; top:4cm; width:30%" uml='
-        class Person {
-          -name : String
-          -alter : int
-          +setName(name : String)
-          +getName() : String
-          +setAlter(alter : int)
-          +getAlter() : int
-          +erhoeheAlter()
-        }     
-        
-        object "p:Person" as p {
-          name = "Peter"
-          alter = 20
-          }
-         Person -[hidden]-> p
-        '/>
-      </section>
-
-      <section>
-        <h3>UML-Klassendiagramm</h3>
-
-        <p class="small" style="margin-left:-3mm; margin-right: -1cm;">
-          <code>+|-|#|~ &lt;Attribut&gt; : &lt;Typ&gt; </code><br>
-          <code>+|-|#|~ &lt;Methode&gt;(&lt;Parameter&gt; : &lt;Typ&gt;, ...) : &lt;Rückgabetyp&gt; </code>
-        </p>
-        <p>&nbsp;</p>
-        <p>&nbsp;</p>
-        <h4>Sichtbarkeiten</h4>
-        <ul class="small">
-          <li><code>+ public</code>: Sichtbar von überall</li>
-          <li><code>- private</code>: Nur in der Klasse selbst sichtbar</li>
-          <li><code># protected</code>: In Subklassen und in Klassen im gleichen Paket sichtbar</li>
-          <li><code>~</code> package-private: In Klassen im gleichen Paket sichtbar</li>
-        </ul>
-
-        <img style="position: absolute; right:0cm; top:5cm; width:30%" uml="class Person {
-          -name : String
-          -alter : int
-          +Person(name : String)
-          +setName(name : String)
-          +getName() : String
-          +setAlter(alter : int)
-          +getAlter() : int
-          +erhoeheAlter()
-        }        
-        "/>
-
-        <aside class="notes">In Klassendiagrammen werden Klassen und Schnittstellen samt ihrer Attribute und Methoden dargestellt sowie die Beziehungen zwischen ihnen.</aside>
-      </section>
-
-      <section>
-        <h3>Objektreferenzen</h3>
-        <img style="width:80%" uml="class Person {
-          -name : String
-          -alter : int
-          -adresse : Adresse
-          +setName(name : String)
-          +getName() : String
-          +setAlter(alter : int)
-          +getAlter() : int
-          +erhoeheAlter()
-          +setAdresse(adresse : Adresse)
-          +getAdresse() : Adresse
-        }
-
-        class Adresse {
-          -strasse : String
-          -hausnummer : int
-          -plz : String
-          -ort : String
-          +getStrasse() : String
-          +setStrasse(strasse : String)
-          +getHausnummer() : int
-          +setHausnummer(hausnummer : int)
-          +getPlz() : String
-          +setPlz(plz : String)
-          +getOrt() : String
-          +setOrt(ort : String)
-        }
-        Person &quot;*&quot; ---r &quot;1&quot; Adresse : \t
-        "/>
-
-        <pre><code class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personenadresse/Person.java#57,68,70'></code></pre>  
-        <aside class="notes">Die Member-Variable <code>adresse</code> der Klasse <code>Person</code> hat die Klasse <code>Adresse</code>, das heißt, sie referenziert ein Objekt ebendieser <code>Adresse</code>-Klasse. Die letzten beiden Zeilen des Code-Beispiels lassen sich auch vereinfachen: <code>p.setAdresse(new Adresse("Badstr.", 3, "12345", "Teststadt"));</code></aside>
-      </section>
-
-      <section>
-        <h3>Objektidentität</h3>
-        <div class="red" style="position: absolute; top: 20px; right:50px; font-size:100px"><code>==</code></div>
-        <p class="small"><code>==</code> überprüft, ob zwei Variablen <em>dasselbe</em> Objekt referenzieren.</p>
-        <pre><code style="max-height: 1000px" class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personenadresse/Person.java#57-59,68-80'></code></pre>  
-        <aside class="notes">Hier wird &quot;Peter und Ute haben dieselbe Adresse." ausgegeben, da sie beide dasselbe <code>Adresse</code>-Objekt referenzieren. Das zweite <code>println</code> gibt &quot;Ute wohnt in der Hausnummer 5&quot; aus, da sich Peters Adressänderung auch auf Ute auswirkt. Es handelt sich ja um dasselbe <code>Adresse</code>-Objekt.</aside>
-      </section>
-
-      <section>
-        <h3>Gleichheit: <code>equals</code></h3>
-        <div class="trackinfo"><i class="fas fa-book"></i> 12.2</div>
-        <div style="position: absolute; top: 30px; right:0px; font-size:80px"><i class="fas fa-home red"></i><i class="fas fa-home red"></i></div>
-        <p class="small"><code>equals</code> soll überprüfen, ob zwei Objekte als gleich behandelt werden.<br>Diese Methode muss man für eigene Klassen selbst entwickeln.</p>
-        <pre><code style="max-height: 1000px;" class="java" contenteditable data-sample-indent="keep" data-sample='code/Programmieren2/src/de/othr/personenadresse/Adresse.java#3,55-70'></code></pre>  
-        <aside class="notes">Diese Methode gibt <code>true</code> aus, wenn zwei Adressen dieselbe Straße, Hausnummer, PLZ und Ort haben. Details zur <code>@Override</code>-Annotation und zur <code>instanceof</code>-Überprüfung folgen im nächsten Kapitel. </aside>
-      </section>
-
-      <section>
-        <h3>Gleichheit: <code>equals</code></h3>
-        <pre><code style="max-height: 1000px;" class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personenadresse/EqualsBeispiel.java#5-21'></code></pre>  
-        <div class="poll fragment" style="bottom:-80px">
-          <h1>Peters und Utes Adressen sind...?</h1>
-            <ul>
-              <li>dieselbe und die gleiche</li>
-              <li>dieselbe, aber nicht die gleiche</li>
-              <li data-poll="correct">nicht dieselbe, aber die gleiche</li>
-              <li>nicht die selbe und nicht die gleiche</li>
-            </ul>
-          <h2>https://frage.space</h2>
-         </div>
-      </section>
-
-      <section>
-        <h3>UML-Objektdiagramm</h3>
-        <pre><code style="max-height: 1000px;" class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personenadresse/EqualsBeispiel.java#8-9'></code></pre>  
-        <img style="width:45%" uml='object "<u>p:Person</u>" as p {
-          name = "Peter"
-          alter = 20
-          }
-          
-          object "<u>q:Person</u>" as q {
-            name = "Ute"
-            alter = null
-            }
+                                                     { _r: "verwaltet",
+                                                       _e: ["Datenbank", "Bücher"],
+                                                       card: ["", ""]
+                                                     }
+                                                    ]]
+                                                                </div></div>
+                                    
+                                    <aside class="notes">In diesem ER-Diagramm fehlen Kardinalitäten an einer Beziehung, an einer anderen Beziehung sind sie falsch herum. Dem Entitätstyp &quot;Bücher&quot; fehlt der Primärschlüssel. Die Entitätstypen &quot;Bibliothek&quot; und &quot;Datenbank&quot; sind völlig falsch. Wir speichern viele Bücher und viele Verlage, aber wir speichern keine Bibliotheken und Datenbanken! Man erkennt überflüssige Entitätstypen auch daran, dass einem dazu keine Attribute einfallen.</aside>
+                                </section>
+                                
+                                
+                        </div>
+                    </div>
             
-          object "<u>:Adresse</u>" as a {
-            strasse = "Badstr."
-            hausnummer = 3
-            plz = "12345"
-            ort = "Teststadt"
-            }
-
-            object "<u>:Adresse</u>" as b {
-              strasse = "Badstr."
-              hausnummer = 3
-              plz = "12345"
-              ort = "Teststadt"
-              }
-              
-            p--a : adresse
-            q--b : adresse
-              '>
-        <aside class="notes">Während UML-Klassendiagramme dazu geeignet sind, das Schema der Daten zu beschreiben, wird in Objektdiagrammen eine Momentaufnahme von konkreten Instanzen von Klassen - also Objekten - dargestellt. In Objektdiagrammen wird der Bezeichner unterstrichen. Es ist optional, dem Objekt einen Namen zu geben (z. B. <code>p</code>).</aside>
-      
-        
-      </section>
-
-      <section>
-        <h3>UML-Objektdiagramm</h3>
-        <pre><code style="max-height: 1000px;" class="java" contenteditable data-sample='code/Programmieren2/src/de/othr/personenadresse/EqualsBeispiel.java#23-25'></code></pre>
-        <img style="width:45%" uml='object "<u>p:Person</u>" as p {
-          name = "Peter"
-          alter = 20
-          }
-          
-          object "<u>q:Person</u>" as q {
-            name = "Ute"
-            alter = null
-            }
+                    <script src="reveal.js/js/reveal.js"></script>
+                    <script src="lib/jquery.js"></script>
+                    <script src="lib/lodash.js"></script>
+                    <script src="lib/backbone.js"></script>
+                    <script src="lib/joint.min.js"></script>
+                    <script src="lib/deflate.js"></script>
             
-          object "<u>a:Adresse</u>" as a {
-            strasse = "Badstr."
-            hausnummer = 3
-            plz = "12345"
-            ort = "Teststadt"
-            }
-              
-            p--a : adresse
-            q--a : adresse
-              '>
-        <aside class="notes">Im nun gezeigen Beispiel haben Peter und Ute dieselbe Adresse. Es existiert - anders als im Beispiel auf der vorherigen Folie - nur ein einziges <code>Adresse</code>-Objekt.</aside>
-      </section>
-
-
-			<section>
-							<h2>Kapitelzusammenfassung</h2>
-							<ul>
-                <li>Klassen und Objekte</li>
-                <li>Member-Variablen</li>
-                <li>Konstruktoren, Methoden, Getter, Setter</li>
-                <li><code>this</code></li>
-                <li>Overloading</li>
-                <li>Statische Attribute und Methoden</li>
-                <li>UML: Klassendiagramme und Objektdiagramme</li>
-                <li>Objektidentität, <code>equals</code></li>
-							</ul>
-      </section>
-
-			</div>
-		</div>
-
-		<script src="reveal.js/js/reveal.js"></script>
-        <script src="lib/jquery.js"></script>
-        <script src="lib/lodash.js"></script>
-        <script src="lib/backbone.js"></script>
-        <script src="lib/joint.min.js"></script>
-        <script src="lib/deflate.js"></script>
-
-		<script src="src/init_reveal.js"></script>
-
-        <script>
-        if(window.location.search.match( /print-pdf/gi )) {
-                document.getElementById('header').style="display:none";
-                document.getElementById('footer').style="display:none";
-        }
-        </script>
-
-
-	</body>
-</html>
+                    <script src="src/init_reveal.js"></script>
+            
+                    <script>
+                    if(window.location.search.match( /print-pdf/gi )) {
+                            document.getElementById('header').style="display:none";
+                            document.getElementById('footer').style="display:none";
+                    }
+                    </script>
+            
+            
+                </body>
+            </html>

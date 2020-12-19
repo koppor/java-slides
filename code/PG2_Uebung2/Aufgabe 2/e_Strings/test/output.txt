@@ -1,2 +1,0 @@
-Haupstrasse 4b 01234 Teststadt
-Die Adresse befindet sich in Teststadt!
